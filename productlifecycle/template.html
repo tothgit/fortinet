@@ -380,6 +380,7 @@
       <div class="date-from">
         <label for="from-date">Zobrazit od</label>
         <input type="date" id="from-date">
+        <button type="button" class="btn-all" id="from-date-today">Dnes</button>
         <button type="button" class="btn-all" id="from-date-all">Vše</button>
       </div>
     </div>
@@ -564,6 +565,11 @@ fromDateInput.value = state.fromDate;
 fromDateInput.addEventListener('change', (e) => { state.fromDate = e.target.value; render(); });
 document.getElementById('from-date-all').addEventListener('click', () => {
   state.fromDate = '2000-01-01';
+  fromDateInput.value = state.fromDate;
+  render();
+});
+document.getElementById('from-date-today').addEventListener('click', () => {
+  state.fromDate = TODAY;
   fromDateInput.value = state.fromDate;
   render();
 });
