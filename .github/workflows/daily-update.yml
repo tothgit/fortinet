@@ -1,0 +1,68 @@
+name: Daily Fortinet Lifecycle Radar update
+
+"on":
+  schedule:
+    # 05:00 UTC = 07:00 Prague time while CEST is in effect (roughly late
+    # March to late October); shifts to 06:00 Prague once CET resumes.
+    - cron: '0 5 * * *'
+  workflow_dispatch: {}
+  push:
+    branches: [main]
+    paths:
+      - 'productlifecycle/template.html'
+      - '.github/scripts/build_and_render.py'
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+# Only one Pages deployment at a time.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Refresh data from Fortinet RSS feeds and render index.html
+        run: python .github/scripts/build_and_render.py
+
+      - name: Commit refreshed index.html (if it changed)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add productlifecycle/index.html
+          if git diff --cached --quiet; then
+            echo "No data changes today."
+          else
+            git commit -m "Daily data refresh: $(date -u +%Y-%m-%d)"
+            git push
+          fi
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # Upload the whole repo root (not just productlifecycle/) so the
+          # published URL keeps the /productlifecycle/ path segment.
+          path: .
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
