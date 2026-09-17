@@ -1,4 +1,4 @@
-name: Daily Fortinet Lifecycle Radar update
+name: Daily Fortinet Update
 
 "on":
   schedule:
