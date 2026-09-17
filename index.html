@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Fortinet Product Lifecycle Radar</title>
+<title>Fortinet nástroje</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&display=swap');
 
@@ -19,35 +19,45 @@
     font-family:'Sora', system-ui, sans-serif;
     padding:24px;
   }
+  .wrap{ max-width:520px; width:100%; }
+  h1{
+    font-size:22px; font-weight:700; margin:0 0 22px; text-align:center;
+  }
   .card{
     background:var(--surface); border:1px solid var(--border); border-radius:16px;
-    padding:40px 36px; max-width:480px; width:100%;
+    padding:26px 28px; width:100%;
     box-shadow:0 8px 24px rgba(2,52,68,0.06);
-    text-align:center;
+    text-align:left;
+    margin-bottom:16px;
   }
-  h1{
-    font-size:22px; font-weight:700; margin:0 0 10px;
+  .card h2{
+    font-size:16px; font-weight:700; margin:0 0 8px;
   }
-  p{
-    color:var(--text-muted); font-size:14.5px; line-height:1.55; margin:0 0 26px;
+  .card p{
+    color:var(--text-muted); font-size:14px; line-height:1.55; margin:0 0 20px;
   }
   a.btn{
     display:inline-block; text-decoration:none;
-    background:var(--accent); color:#fff; font-weight:600; font-size:15px;
-    padding:12px 26px; border-radius:10px;
+    background:var(--accent); color:#fff; font-weight:600; font-size:14.5px;
+    padding:11px 22px; border-radius:10px;
     transition:background .15s ease;
   }
   a.btn:hover{ background:var(--accent-strong); }
-  .foot{
-    margin-top:22px; font-size:12px; color:var(--text-muted);
-  }
 </style>
 </head>
 <body>
-  <div class="card">
-    <h1>Fortinet Product Lifecycle Radar</h1>
-    <p>Přehled konce podpory (EoS/EoL) hardwaru, softwaru a služeb Fortinet, denně aktualizovaný z oficiálních RSS zdrojů Fortinet.</p>
-    <a class="btn" href="./productlifecycle/">Otevřít dashboard</a>
+  <div class="wrap">
+    <h1>Fortinet nástroje</h1>
+    <div class="card">
+      <h2>Product Lifecycle Radar</h2>
+      <p>Přehled konce podpory (EoS/EoL) hardwaru, softwaru a služeb Fortinet, denně aktualizovaný z oficiálních RSS zdrojů Fortinet.</p>
+      <a class="btn" href="./productlifecycle/">Otevřít dashboard</a>
+    </div>
+    <div class="card">
+      <h2>IPsec MTU Calculator</h2>
+      <p>Výpočet optimální MTU/MSS pro IPsec tunely na FortiGate.</p>
+      <a class="btn" href="./ipsec-mtu-calculator/">Otevřít kalkulačku</a>
+    </div>
   </div>
 </body>
 </html>
