@@ -55,7 +55,7 @@ h1{font-family:var(--font-display);font-weight:700;font-size:clamp(30px,4.4vw,46
 .grp h3,.sub-h{font-family:var(--font-display);font-weight:600;font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0}
 .sub-h{font-size:11px;margin-top:4px}
 .hint{font-size:12px;line-height:1.55;color:var(--muted);margin:0;font-weight:300}
-.hint code{color:var(--ink);white-space:nowrap}
+.hint code{color:var(--ink);white-space:normal;overflow-wrap:anywhere}
 .hint b{font-weight:600;color:var(--ink)}
 
 /* controls */
@@ -228,6 +228,8 @@ footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--line);font-si
 @media (prefers-reduced-motion:no-preference){.matrix button,.chips label,.opts label,.lang button,.cli-head button{transition:background-color .12s,border-color .12s,color .12s}}
 .matrix button.aead[aria-pressed="true"]>span,.matrix button.aead[aria-pressed="true"] b span{color:var(--sherpa);opacity:.85}
 .pcol>.grp:not(:has(~ .grp:not([hidden]))){border-bottom:0}
+.pcol,.grp,.subopts,.opts{grid-template-columns:minmax(0,1fr)}
+.opts label{min-width:0}.opts small,.opts b{overflow-wrap:anywhere}
 </style>
 </head>
 <body>
