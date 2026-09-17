@@ -8,8 +8,8 @@
   @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&display=swap');
 
   :root{
-    --bg:#f5f6fa; --surface:#ffffff; --border:#e1e4ee;
-    --text:#023444; --text-muted:#5b707b;
+    --bg:#023444; --surface:#ffffff; --border:#e1e4ee;
+    --text:#023444; --text-muted:#5b707b; --heading-on-bg:#ffffff;
     --accent:#884dff; --accent-strong:#6b2fe0; --accent-soft:#f1e9ff;
   }
   *{box-sizing:border-box;}
@@ -22,6 +22,7 @@
   .wrap{ max-width:520px; width:100%; }
   h1{
     font-size:22px; font-weight:700; margin:0 0 22px; text-align:center;
+    color:var(--heading-on-bg);
   }
   .card{
     background:var(--surface); border:1px solid var(--border); border-radius:16px;
