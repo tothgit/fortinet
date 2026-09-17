@@ -1,1 +1,1683 @@
+<!doctype html>
+<html lang="cs" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FortiGate IPsec MTU Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Seyfor brand book 2022 – Lawn Green #89E103, Violet #884DFF, Sherpa Blue #023444, White #FBFDFC, Sivá #F7F7FA,
+   chart-only Turquoise #5DE5E9 (more than three data segments). Typeface Sora. Single dark look (brand book p. 86–87). */
+:root{
+  --lime:#89E103; --violet:#884DFF; --sherpa:#023444; --white:#FBFDFC; --turq:#5DE5E9;
+  --bg:#012A37; --surface:#023444; --surface-2:#0A3D4D; --ink:#FBFDFC; --muted:#A7BCC2; --line:#154A5A;
+  --accent:#89E103; --accent-ink:#023444; --accent-soft:rgba(137,225,3,.12);
+  --good:#89E103; --good-soft:rgba(137,225,3,.14); --warn:#F2B84B; --warn-soft:rgba(242,184,75,.12); --bad:#FF7A7A; --bad-soft:rgba(255,122,122,.13);
+  --neutral:#46707C;
+  --seg-ip:#5DE5E9; --seg-l4:#4BC2C8; --seg-esp:#884DFF; --seg-iv:#6647D0; --seg-ovl:#22727E;
+  --seg-pad:#468A24; --seg-trl:#67B613; --seg-icv:#89E103;
+  --code-bg:#01202A; --code-ink:#D8E8E4; --code-dim:#7FA0A8;
+  --font-display:"Sora","Century Gothic",system-ui,sans-serif;
+  --font-body:"Sora","Century Gothic",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,"Cascadia Mono",Consolas,Menlo,monospace;
+  color-scheme: dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font:400 14.5px/1.6 var(--font-body);margin:0;padding-inline:16px;padding-block:0 56px}
+.wrap{max-width:1380px;margin:0 auto}
+a{color:var(--lime)}
+code,kbd{font-family:var(--font-mono);font-size:.88em}
+.vh{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
 
+/* header */
+.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px 32px;padding-block:32px 24px;margin-bottom:8px}
+.kicker{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.08em;color:var(--muted);margin:0 0 10px}
+h1{font-family:var(--font-display);font-weight:700;font-size:clamp(30px,4.4vw,46px);line-height:1.02;letter-spacing:-.015em;margin:0;text-wrap:balance}
+.lede{margin:12px 0 0;color:var(--muted);max-width:66ch;font-weight:300}
+.lang{display:inline-flex;gap:6px}
+.lang button{font:600 13px/1 var(--font-body);border:2px solid var(--lime);background:transparent;color:var(--lime);padding:9px 16px;border-radius:0;cursor:pointer}
+.lang button[aria-pressed="true"]{background:var(--lime);color:var(--sherpa)}
+
+/* layout */
+.layout{display:grid;grid-template-columns:minmax(0,1fr);gap:20px;align-items:start}
+.panel{background:var(--surface);border-radius:4px;padding:4px 20px 8px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0}
+.pcol{display:grid;align-content:start;min-width:0;padding-inline:20px;border-left:1px solid var(--line)}
+.pcol:first-child{padding-left:0;border-left:0}
+.pcol:last-child{padding-right:0}
+@media (max-width:1100px){.panel{grid-template-columns:repeat(2,minmax(0,1fr))}.pcol:nth-child(3){padding-left:0;border-left:0}.pcol:nth-child(2){padding-right:0}.pcol:nth-child(n+3){border-top:1px solid var(--line)}}
+@media (max-width:640px){.panel{grid-template-columns:minmax(0,1fr)}.pcol{padding-inline:0;border-left:0}.pcol+.pcol{border-top:1px solid var(--line)}}
+.grp{display:grid;gap:10px;padding-block:16px;border-bottom:1px solid var(--line)}
+.grp:last-child{border-bottom:0}
+.grp h3,.sub-h{font-family:var(--font-display);font-weight:600;font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0}
+.sub-h{font-size:11px;margin-top:4px}
+.hint{font-size:12px;line-height:1.55;color:var(--muted);margin:0;font-weight:300}
+.hint code{color:var(--ink);white-space:nowrap}
+.hint b{font-weight:600;color:var(--ink)}
+
+/* controls */
+.field{display:grid;gap:5px;font-size:12.5px;font-weight:400;min-width:0}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:end}
+input[type=number],select{font:600 14.5px/1.2 var(--font-mono);color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:2px;padding:9px 10px;width:100%;min-width:0}
+select{font-family:var(--font-body);font-weight:400;font-size:13.5px}
+select option,select optgroup{background:var(--surface);color:var(--ink)}
+input[type=number]:focus,select:focus{border-color:var(--lime);outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
+select:disabled{opacity:.45}
+input[aria-invalid="true"]{border-color:var(--bad);box-shadow:0 0 0 3px var(--bad-soft)}
+.chips{position:relative;display:flex;flex-wrap:wrap;gap:6px}
+.chips input,.opts input{position:absolute;opacity:0;width:1px;height:1px;margin:0}
+.chips label{font-size:12.5px;font-weight:600;padding:7px 12px;border:2px solid var(--lime);border-radius:0;cursor:pointer;background:transparent;color:var(--lime);white-space:nowrap}
+.chips input:checked+label{background:var(--lime);border-color:var(--lime);color:var(--sherpa)}
+.chips input:focus-visible+label,.opts input:focus-visible+label{outline:2px solid var(--white);outline-offset:2px}
+.opts{position:relative;display:grid;gap:6px}
+.opts label{display:grid;grid-template-columns:16px 1fr;column-gap:10px;align-items:start;padding:9px 11px;border:1px solid var(--line);border-radius:2px;cursor:pointer;background:var(--surface-2)}
+.opts label::before{content:"";grid-row:1 / span 2;width:14px;height:14px;margin-top:3px;border-radius:50%;border:1.5px solid var(--muted);box-sizing:border-box}
+.opts input:checked+label{border-color:var(--lime);box-shadow:inset 3px 0 0 var(--lime)}
+.opts input:checked+label::before{border:4px solid var(--lime)}
+.opts b{font-weight:600;font-size:13.5px}
+.opts small{grid-column:2;font-family:var(--font-mono);font-size:11px;color:var(--muted)}
+.check{display:flex;gap:8px;align-items:center;font-size:13px;cursor:pointer}
+.check input{accent-color:var(--lime);width:16px;height:16px;margin:0}
+.subopts{display:grid;gap:8px;padding:10px 12px;background:rgba(0,0,0,.18);border-radius:2px}
+.propline{display:flex;flex-wrap:wrap;gap:6px;align-items:baseline;font-size:12.5px;color:var(--muted)}
+.propline code{font-size:13.5px;font-weight:600;color:var(--sherpa);background:var(--lime);padding:2px 8px}
+.params{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:0}
+.params div{background:var(--surface-2);padding:6px 8px}
+.params dt{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.params dd{margin:0;font:600 14px/1.3 var(--font-mono)}
+.flag{font-size:12px;line-height:1.5;padding:8px 10px;background:var(--warn-soft);color:var(--ink);border-left:3px solid var(--warn);margin:0;font-weight:300}
+.flag b,.flag code{font-weight:600}
+.flag.bad{background:var(--bad-soft);border-left-color:var(--bad)}
+
+/* results */
+.results{display:grid;grid-template-columns:minmax(0,1fr);gap:20px;min-width:0}
+.card,.block{background:var(--surface);border-radius:4px;padding:20px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.tile{background:var(--surface);border-radius:4px;padding:18px 18px 16px;display:grid;gap:6px;align-content:start;border:1px solid transparent}
+.tile .tv{display:grid;gap:6px}
+.tile .v{font:700 clamp(34px,3.6vw,46px)/1 var(--font-display);color:var(--lime);letter-spacing:-.03em}
+.tile .v small{font-size:.32em;font-weight:400;margin-left:3px;color:var(--muted);letter-spacing:0}
+.tile .k{font-weight:600;font-size:15px;line-height:1.15}
+.tile .s{font-size:11.5px;line-height:1.4;color:var(--muted);font-weight:300}
+.tile .s code{font-size:11px;color:var(--ink)}
+.tile.bad{border-color:var(--bad);background:linear-gradient(var(--bad-soft),var(--bad-soft)),var(--surface)}
+.tile.bad .v{color:var(--bad)}
+.ping{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline;font-size:12.5px;color:var(--muted);margin-top:12px;font-weight:300}
+.ping code{color:var(--ink);background:var(--surface);padding:3px 8px}
+.alerts{display:grid;gap:8px;margin-top:12px}
+.alerts:empty{display:none}
+
+.row2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.35fr);gap:20px;margin-top:20px}
+@media (max-width:1100px){.row2{grid-template-columns:minmax(0,1fr)}}
+.hd{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.hd .big{font:700 32px/1 var(--font-display);color:var(--lime);letter-spacing:-.02em}
+.hd .tt{font-weight:600;font-size:17px;line-height:1.15}
+.hd .tt small{display:block;font-weight:300;font-size:11.5px;color:var(--muted);margin-top:2px}
+.donutwrap{display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+.donutwrap svg{flex:none}
+.dlegend{display:grid;gap:9px;font-size:12.5px;margin:0}
+.dlegend div{display:flex;align-items:center;gap:8px}
+.dlegend i{width:10px;height:10px;flex:none;background:var(--c)}
+.dlegend dd{margin:0 0 0 auto;padding-left:14px;font:600 13px var(--font-mono)}
+.dlegend dt{font-weight:400}
+.lbars{display:grid;grid-template-columns:1fr 1fr;gap:12px 24px}
+@media (max-width:560px){.lbars{grid-template-columns:1fr}}
+.lbar .lb{display:flex;justify-content:space-between;gap:8px;font-size:11.5px;color:var(--muted);margin-bottom:5px}
+.lbar .lb span{display:flex;align-items:center;gap:6px;min-width:0}
+.lbar .lb i{width:8px;height:8px;flex:none;background:var(--c)}
+.lbar .lb b{color:var(--ink);font:600 11.5px var(--font-mono);white-space:nowrap}
+.lbar .tr{height:8px;background:rgba(0,0,0,.28)}
+.lbar .fl{height:8px;background:var(--lime);border-radius:0 4px 4px 0}
+
+.block h2{font-family:var(--font-display);font-weight:700;font-size:24px;line-height:1.15;margin:0 0 4px;text-wrap:balance}
+.block>.hint{font-size:12.5px;max-width:78ch;margin-bottom:14px}
+.frame{background:rgba(0,0,0,.18);border-radius:2px;padding:16px}
+
+/* packet strip */
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.strip{display:grid;gap:2px;min-width:600px;padding-bottom:4px}
+.sg{background:var(--c);color:var(--si,#023444);padding:8px 4px 7px;text-align:center;font-family:var(--font-mono);line-height:1.2;min-width:0;overflow:hidden}
+.sg b{display:block;font-size:11.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sg span{display:block;font-size:11px;opacity:.85;font-variant-numeric:tabular-nums}
+.sg.user{--c:var(--surface-2);color:var(--ink);background-image:repeating-linear-gradient(135deg,transparent 0 9px,rgba(251,253,252,.07) 9px 10px);outline:1px dashed var(--neutral);outline-offset:-1px}
+.br{border-top:2px solid var(--bc,var(--muted));position:relative;padding-top:4px;font-size:11px;color:var(--muted);text-align:center;white-space:nowrap;margin-top:4px}
+.br::before,.br::after{content:"";position:absolute;top:-6px;width:2px;height:6px;background:var(--bc,var(--muted))}
+.br::before{left:0}.br::after{right:0}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:12px;font-size:11.5px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;background:var(--c);margin-right:5px;vertical-align:-1px}
+
+/* tables */
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+thead th{font-weight:600;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line)}
+td.n,th.n{text-align:right;font-family:var(--font-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+td.ref{font-size:11.5px;color:var(--muted);white-space:nowrap}
+.sw{display:inline-block;width:10px;height:10px;background:var(--c);margin-right:8px;vertical-align:-1px}
+.sw.user{background:var(--surface-2);outline:1px dashed var(--neutral)}
+tfoot td{font-weight:600;border-bottom:0}
+tfoot tr:first-child td{border-top:1px solid var(--muted)}
+td.n.neg{color:var(--bad)}
+.tbl{min-width:560px}
+
+/* packet check */
+.check-grid{display:grid;grid-template-columns:minmax(0,200px) minmax(0,1fr);gap:16px 24px;align-items:start}
+@media (max-width:600px){.check-grid{grid-template-columns:minmax(0,1fr)}}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:0}
+.kv div{background:var(--surface-2);padding:9px 11px}
+.kv dt{font-size:11px;color:var(--muted)}
+.kv dd{margin:0;font:700 19px/1.3 var(--font-display);color:var(--ink)}
+.verdict{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:13px;line-height:1.35;padding:7px 12px;margin-top:10px;border-left:3px solid currentColor}
+.verdict.ok{background:var(--good-soft);color:var(--good)}
+.verdict.no{background:var(--bad-soft);color:var(--bad)}
+.verdict.warn{background:var(--warn-soft);color:var(--warn)}
+.verdict.info{background:rgba(93,229,233,.1);color:var(--turq)}
+
+/* proposal chart + matrix */
+.pchart{margin-bottom:18px;min-width:560px}
+.pchart svg{display:block;width:100%;height:auto}
+.pchart .bar{cursor:pointer}
+.pchart .bar:hover rect.m,.pchart .bar:focus rect.m{filter:brightness(1.15)}
+.pchart .bar:focus{outline:none}
+.pchart .bar:focus-visible rect.hit{stroke:var(--white);stroke-width:1}
+.matrix{min-width:640px}
+.matrix th[scope=row]{font-weight:600;white-space:nowrap}
+.matrix th[scope=row] small{display:block;font-family:var(--font-mono);font-size:10.5px;color:var(--muted);font-weight:400}
+.matrix td{padding:4px}
+.matrix button{width:100%;border:1px solid transparent;background:var(--surface-2);border-radius:0;padding:6px 8px;cursor:pointer;color:var(--ink);text-align:right;font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.matrix button b{display:block;font-size:14.5px;font-weight:600}
+.matrix button span{display:block;font-size:10.5px;color:var(--muted)}
+.matrix button:hover{border-color:var(--lime)}
+.matrix button[aria-pressed="true"]{background:var(--lime);color:var(--sherpa);border-color:var(--lime)}
+.matrix button[aria-pressed="true"] span{color:var(--sherpa);opacity:.8}
+.matrix button.aead{text-align:left;display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.matrix button.aead b{display:inline}
+.matrix button.aead>span{display:inline;font-size:11.5px;color:var(--muted)}
+.matrix button.aead b span{display:inline;margin-left:6px}
+.matrix .na{color:var(--muted);font-size:11.5px;text-align:center;padding:10px 8px}
+
+/* tooltip */
+.tip{position:fixed;z-index:20;pointer-events:none;background:var(--white);color:var(--sherpa);font:600 12px/1.35 var(--font-body);padding:6px 9px;max-width:260px;box-shadow:0 4px 14px rgba(0,0,0,.35)}
+.tip small{display:block;font-weight:400;font-family:var(--font-mono);font-size:11px}
+
+/* cli */
+.cli-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 10px 8px 14px;background:var(--code-bg);border-bottom:1px solid var(--line)}
+.cli-head span{font-family:var(--font-mono);font-size:11.5px;color:var(--code-dim)}
+.cli-head button{font:600 12.5px/1 var(--font-body);background:transparent;color:var(--lime);border:2px solid var(--lime);border-radius:0;padding:7px 12px;cursor:pointer}
+.cli-head button:hover{background:var(--lime);color:var(--sherpa)}
+pre.cli{margin:0;background:var(--code-bg);color:var(--code-ink);padding:14px 16px;font:12.5px/1.65 var(--font-mono);overflow-x:auto;tab-size:4}
+pre.cli .ph{color:#BFA0FF}
+pre.cli .kw{color:var(--lime)}
+pre.cli .cm{color:var(--code-dim);font-style:italic}
+ul.notes{margin:14px 0 0;padding-left:18px;display:grid;gap:7px;font-size:13px;max-width:82ch;font-weight:300}
+ul.notes li::marker{color:var(--lime)}
+ul.notes code{background:var(--surface-2);padding:1px 5px;font-weight:400}
+ul.notes b{font-weight:600}
+
+details{background:rgba(0,0,0,.18);padding:0 16px;margin-top:16px}
+details[open]{padding-bottom:14px}
+summary{cursor:pointer;font-weight:600;padding:12px 0;font-size:13.5px}
+summary::marker{color:var(--lime)}
+.ok-mark{color:var(--good);font-weight:700}
+.bad-mark{color:var(--bad);font-weight:700}
+.sources{columns:2 320px;column-gap:28px;padding-left:18px;font-size:12.5px;margin:8px 0 0;font-weight:300}
+.sources li{break-inside:avoid;margin-bottom:5px}
+footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--line);font-size:12px;color:var(--muted);display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;font-weight:300}
+@media (prefers-reduced-motion:no-preference){.matrix button,.chips label,.opts label,.lang button,.cli-head button{transition:background-color .12s,border-color .12s,color .12s}}
+.matrix button.aead[aria-pressed="true"]>span,.matrix button.aead[aria-pressed="true"] b span{color:var(--sherpa);opacity:.85}
+.pcol>.grp:not(:has(~ .grp:not([hidden]))){border-bottom:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <div>
+    <p class="kicker">IPv4 · ESP · FortiOS · FortiClient</p>
+    <h1>FortiGate IPsec MTU Calculator</h1>
+    <p class="lede" data-i18n="lede"></p>
+  </div>
+  <div class="lang" role="group" aria-label="Jazyk / Language">
+    <button type="button" id="lang-cs" data-lang="cs" aria-pressed="true">CZ</button>
+    <button type="button" id="lang-en" data-lang="en" aria-pressed="false">EN</button>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="panel" aria-label="Inputs">
+   <div class="pcol">
+    <section class="grp" aria-labelledby="g-kind">
+      <h3 id="g-kind" data-i18n="gKind"></h3>
+      <div class="chips seg2" role="radiogroup" aria-labelledby="g-kind">
+        <input type="radio" name="kind" id="k-s2s" value="s2s" checked><label for="k-s2s">Site-to-Site</label>
+        <input type="radio" name="kind" id="k-ra" value="ra"><label for="k-ra">Remote Access</label>
+      </div>
+      <p class="hint" data-i18n="hintKind"></p>
+    </section>
+
+    <section class="grp" aria-labelledby="g-under">
+      <h3 id="g-under" data-i18n="gUnder"></h3>
+      <div class="chips" role="radiogroup" aria-labelledby="g-under">
+        <input type="radio" name="preset" id="p-eth" value="1500" checked><label for="p-eth">Ethernet 1500</label>
+        <input type="radio" name="preset" id="p-pppoe" value="1492"><label for="p-pppoe">PPPoE 1492</label>
+        <input type="radio" name="preset" id="p-custom" value="custom"><label for="p-custom" data-i18n="custom"></label>
+      </div>
+      <div class="field-row">
+        <label class="field" for="wanMtu"><span id="wanMtuLbl"></span>
+          <input type="number" id="wanMtu" min="68" max="9216" step="1" value="1500" inputmode="numeric"></label>
+        <label class="field" for="extra"><span data-i18n="extra"></span>
+          <input type="number" id="extra" min="0" max="1000" step="1" value="0" inputmode="numeric"></label>
+      </div>
+      <label class="field" for="cliMtu" id="cliMtuWrap" hidden><span data-i18n="cliMtu"></span>
+        <input type="number" id="cliMtu" min="68" max="9216" step="1" value="1500" inputmode="numeric"></label>
+      <p class="hint" id="hintRA" data-i18n="hintUnderRA" hidden></p>
+      <p class="hint" data-i18n-html="hintUnder"></p>
+    </section>
+
+   </div>
+   <div class="pcol">
+    <section class="grp" aria-labelledby="g-tr">
+      <h3 id="g-tr" data-i18n="gTransport"></h3>
+      <div class="opts" role="radiogroup" aria-labelledby="g-tr">
+        <input type="radio" name="transport" id="t-esp" value="esp">
+        <label for="t-esp"><b data-i18n="tEsp"></b><small data-i18n="tEspSub"></small></label>
+        <input type="radio" name="transport" id="t-udp" value="udp" checked>
+        <label for="t-udp"><b>NAT-T</b><small data-i18n="tUdpSub"></small></label>
+        <input type="radio" name="transport" id="t-tcp" value="tcp">
+        <label for="t-tcp"><b>IPsec over TCP</b><small data-i18n="tTcpSub"></small></label>
+      </div>
+      <div class="subopts" id="tcpOpts" hidden>
+        <label class="field" for="tcpOpt"><span data-i18n="tcpOpt"></span>
+          <input type="number" id="tcpOpt" min="0" max="40" step="4" value="0" inputmode="numeric"></label>
+        <label class="field" for="tcpPort"><span>ike-tcp-port</span>
+          <input type="number" id="tcpPort" min="1" max="65535" step="1" value="443" inputmode="numeric"></label>
+        <p class="hint" data-i18n-html="hintTcpPort"></p>
+        <p class="hint" data-i18n-html="hintTcp"></p>
+      </div>
+      <p class="sub-h" id="frag-h">ip-fragmentation</p>
+      <div class="chips" role="radiogroup" aria-labelledby="frag-h">
+        <input type="radio" name="ipfrag" id="f-post" value="post" checked><label for="f-post" data-i18n="fPost"></label>
+        <input type="radio" name="ipfrag" id="f-pre" value="pre"><label for="f-pre">pre-encapsulation</label>
+      </div>
+      <p class="hint" data-i18n-html="hintFrag"></p>
+    </section>
+
+    <section class="grp" aria-labelledby="g-fc" id="fcGroup" hidden>
+      <h3 id="g-fc">FortiClient</h3>
+      <label class="field" for="mtuSize"><span data-i18n="mtuSizeLbl"></span>
+        <input type="number" id="mtuSize" min="576" max="1500" step="1" value="1280" inputmode="numeric"></label>
+      <p class="hint" data-i18n-html="hintMtuSize"></p>
+    </section>
+
+   </div>
+   <div class="pcol">
+    <section class="grp" aria-labelledby="g-p1">
+      <h3 id="g-p1" data-i18n="gP1"></h3>
+      <p class="hint" data-i18n="hintP1"></p>
+      <p class="flag" id="raP1Flag" data-i18n="raFlagP1" hidden></p>
+      <label class="field" for="p1enc"><span data-i18n="enc"></span>
+        <select id="p1enc">
+          <option value="default" data-i18n="p1Default"></option>
+          <optgroup label="CBC">
+            <option value="aes128">aes128</option>
+            <option value="aes192">aes192</option>
+            <option value="aes256">aes256</option>
+            <option value="aria128">aria128</option>
+            <option value="aria192">aria192</option>
+            <option value="aria256">aria256</option>
+            <option value="seed">seed</option>
+            <option value="3des">3des</option>
+            <option value="des">des</option>
+          </optgroup>
+          <optgroup label="AEAD">
+            <option value="aes128gcm">aes128gcm</option>
+            <option value="aes256gcm">aes256gcm</option>
+            <option value="chacha20poly1305">chacha20poly1305</option>
+          </optgroup>
+        </select></label>
+      <label class="field" for="p1prf"><span data-i18n="p1Integ"></span><select id="p1prf"></select></label>
+      <div class="propline"><span>set proposal</span><code id="p1Name"></code></div>
+      <p class="sub-h" id="dh-h" data-i18n="dhTitle"></p>
+      <div class="chips dh" role="group" aria-labelledby="dh-h" id="dhgrp"><input type="checkbox" id="dh-1" value="1"><label for="dh-1">1</label><input type="checkbox" id="dh-2" value="2"><label for="dh-2">2</label><input type="checkbox" id="dh-5" value="5"><label for="dh-5">5</label><input type="checkbox" id="dh-14" value="14"><label for="dh-14">14</label><input type="checkbox" id="dh-15" value="15"><label for="dh-15">15</label><input type="checkbox" id="dh-16" value="16"><label for="dh-16">16</label><input type="checkbox" id="dh-17" value="17"><label for="dh-17">17</label><input type="checkbox" id="dh-18" value="18"><label for="dh-18">18</label><input type="checkbox" id="dh-19" value="19"><label for="dh-19">19</label><input type="checkbox" id="dh-20" value="20" checked><label for="dh-20">20</label><input type="checkbox" id="dh-21" value="21"><label for="dh-21">21</label><input type="checkbox" id="dh-27" value="27"><label for="dh-27">27</label><input type="checkbox" id="dh-28" value="28"><label for="dh-28">28</label><input type="checkbox" id="dh-29" value="29"><label for="dh-29">29</label><input type="checkbox" id="dh-30" value="30"><label for="dh-30">30</label><input type="checkbox" id="dh-31" value="31"><label for="dh-31">31</label><input type="checkbox" id="dh-32" value="32"><label for="dh-32">32</label></div>
+      <p class="hint" id="dhHint" data-i18n="hintDh"></p>
+      <p class="flag" id="raDhFlag" data-i18n="raFlagDh" hidden></p>
+      <p class="sub-h" data-i18n="fragTitle"></p>
+      <label class="check" for="ikeFrag"><input type="checkbox" id="ikeFrag" checked><span><code>set fragmentation enable</code></span></label>
+      <label class="field" for="fragMtu" id="fragMtuWrap"><span data-i18n="fragMtu"></span>
+        <input type="number" id="fragMtu" min="500" max="16000" step="1" value="1200" inputmode="numeric"></label>
+    </section>
+
+   </div>
+   <div class="pcol">
+    <section class="grp" aria-labelledby="g-prop">
+      <h3 id="g-prop" data-i18n="gProposal"></h3>
+      <label class="field" for="cipher"><span data-i18n="enc"></span>
+        <select id="cipher">
+          <optgroup label="CBC">
+            <option value="aes128">aes128 · AES-128-CBC</option>
+            <option value="aes192">aes192 · AES-192-CBC</option>
+            <option value="aes256" selected>aes256 · AES-256-CBC</option>
+            <option value="aria128">aria128 · ARIA-128</option>
+            <option value="aria192">aria192 · ARIA-192</option>
+            <option value="aria256">aria256 · ARIA-256</option>
+            <option value="seed">seed · SEED-CBC</option>
+            <option value="3des">3des · 3DES-CBC</option>
+            <option value="des">des · DES-CBC</option>
+          </optgroup>
+          <optgroup label="AEAD">
+            <option value="aes128gcm">aes128gcm · AES-128-GCM</option>
+            <option value="aes256gcm">aes256gcm · AES-256-GCM</option>
+            <option value="chacha20poly1305">chacha20poly1305</option>
+          </optgroup>
+          <optgroup label="NULL">
+            <option value="null">null · bez šifrování / no encryption</option>
+          </optgroup>
+        </select></label>
+      <label class="field" for="integ"><span data-i18n="auth"></span>
+        <select id="integ">
+          <option value="sha1">sha1 · HMAC-SHA1-96</option>
+          <option value="sha256" selected>sha256 · HMAC-SHA2-256-128</option>
+          <option value="sha384">sha384 · HMAC-SHA2-384-192</option>
+          <option value="sha512">sha512 · HMAC-SHA2-512-256</option>
+          <option value="md5">md5 · HMAC-MD5-96</option>
+          <option value="null">null · —</option>
+        </select></label>
+      <div class="propline"><span data-i18n="fortiName"></span><code id="propName">aes256-sha256</code></div>
+      <p class="flag" id="raP2Flag" data-i18n="raFlagP2" hidden></p>
+      <dl class="params" id="params"></dl>
+      <div id="propFlags" class="alerts"></div>
+    </section>
+
+    <section class="grp" aria-labelledby="g-ovl" id="ovlGroup">
+      <h3 id="g-ovl" data-i18n="gOverlay"></h3>
+      <div class="chips" role="radiogroup" aria-labelledby="g-ovl">
+        <input type="radio" name="overlay" id="o-none" value="none" checked><label for="o-none" data-i18n="ovNone"></label>
+        <input type="radio" name="overlay" id="o-gre" value="gre"><label for="o-gre">GRE</label>
+        <input type="radio" name="overlay" id="o-vxlan" value="vxlan"><label for="o-vxlan">VXLAN</label>
+      </div>
+      <div class="subopts" id="greOpts" hidden>
+        <p class="sub-h" data-i18n="modeTitle"></p>
+        <div class="chips" role="radiogroup">
+          <input type="radio" name="mode" id="m-tunnel" value="tunnel" checked><label for="m-tunnel" data-i18n="modeTunnel"></label>
+          <input type="radio" name="mode" id="m-transport" value="transport"><label for="m-transport" data-i18n="modeTransport"></label>
+        </div>
+        <p class="hint" data-i18n="hintMode"></p>
+        <p class="sub-h" data-i18n="greOptsTitle"></p>
+        <label class="check" for="greCsum"><input type="checkbox" id="greCsum"><span>Checksum (+4 B)</span></label>
+        <label class="check" for="greKey"><input type="checkbox" id="greKey"><span>Key (+4 B)</span></label>
+        <label class="check" for="greSeq"><input type="checkbox" id="greSeq"><span>Sequence number (+4 B)</span></label>
+      </div>
+      <div class="subopts" id="vxOpts" hidden>
+        <label class="check" for="vxTag"><input type="checkbox" id="vxTag"><span data-i18n="vxTag"></span></label>
+        <p class="hint" data-i18n="hintVx"></p>
+      </div>
+    </section>
+   </div>
+  </aside>
+
+  <main class="results">
+    <section aria-live="polite">
+      <div class="tiles" id="tiles"></div>
+      <div class="ping" id="ping"></div>
+      <div class="alerts" id="alerts"></div>
+      <div class="row2">
+        <div class="card" aria-labelledby="h-use">
+          <div class="hd"><span class="big" id="useBig">—</span><span class="tt" id="h-use"><span data-i18n="useTitle"></span><small id="useSub"></small></span></div>
+          <div class="donutwrap"><div id="donut"></div><dl class="dlegend" id="dlegend"></dl></div>
+        </div>
+        <div class="card" aria-labelledby="h-lay">
+          <div class="hd"><span class="big" id="layBig">—</span><span class="tt" id="h-lay"><span data-i18n="layTitle"></span><small data-i18n="laySub"></small></span></div>
+          <div class="lbars" id="lbars"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="block" aria-labelledby="h-anat">
+      <h2 id="h-anat" data-i18n="anatomy"></h2>
+      <p class="hint" id="anatSub"></p>
+      <div class="frame">
+        <div class="scroll"><div class="strip" id="strip"></div></div>
+        <div class="legend" id="legend"></div>
+      </div>
+      <div class="scroll" style="margin-top:14px"><table class="tbl" id="breakdown"></table></div>
+    </section>
+
+    <section class="block" aria-labelledby="h-check">
+      <h2 id="h-check" data-i18n="check"></h2>
+      <p class="hint" data-i18n="checkSub"></p>
+      <div class="frame check-grid">
+        <label class="field" for="pkt"><span data-i18n="pktSize"></span>
+          <input type="number" id="pkt" min="20" max="65535" step="1" value="1450" inputmode="numeric"></label>
+        <div id="checkOut"></div>
+      </div>
+    </section>
+
+    <section class="block" aria-labelledby="h-matrix">
+      <h2 id="h-matrix" data-i18n="matrix"></h2>
+      <p class="hint" id="pchartSub"></p>
+      <div class="scroll"><div class="pchart" id="pchart"></div></div>
+      <p class="hint" id="matrixSub"></p>
+      <div class="scroll"><table class="matrix" id="matrix"></table></div>
+    </section>
+
+    <section class="block" aria-labelledby="h-ike">
+      <h2 id="h-ike" data-i18n="ike"></h2>
+      <p class="hint" data-i18n="ikeSub"></p>
+      <div class="frame" id="ikeOut"></div>
+      <ul class="notes" id="ikeNotes"></ul>
+    </section>
+
+    <section class="block" aria-labelledby="h-cli">
+      <h2 id="h-cli" data-i18n="cli"></h2>
+      <p class="hint" data-i18n-html="cliSub"></p>
+      <div class="cli-head"><span id="cliTag">FortiOS 7.6</span><button type="button" id="copyBtn" data-i18n="copy"></button></div>
+      <pre class="cli" id="cli"></pre>
+      <ul class="notes" id="cliNotes"></ul>
+    </section>
+
+    <section class="block" aria-labelledby="h-xml" id="xmlBlock" hidden>
+      <h2 id="h-xml">FortiClient XML</h2>
+      <p class="hint" data-i18n-html="xmlSub"></p>
+      <div class="cli-head"><span>forticlient_configuration · ipsecvpn</span><button type="button" id="copyXml" data-i18n="copy"></button></div>
+      <pre class="cli" id="xml"></pre>
+      <ul class="notes" id="xmlNotes"></ul>
+    </section>
+
+    <section class="block" aria-labelledby="h-notes">
+      <h2 id="h-notes" data-i18n="notes"></h2>
+      <ul class="notes" id="notes"></ul>
+      <details open>
+        <summary data-i18n="vectors"></summary>
+        <div class="scroll"><table class="tbl" id="vectors"></table></div>
+        <p class="hint" style="margin-top:8px" data-i18n="vectorsFoot"></p>
+      </details>
+      <details>
+        <summary data-i18n="sources"></summary>
+        <ul class="sources" id="sources"></ul>
+      </details>
+    </section>
+  </main>
+</div>
+
+<div class="tip" id="tip" role="tooltip" hidden></div>
+<footer>
+  <span data-i18n="footA"></span>
+  <span data-i18n="footB"></span>
+</footer>
+</div>
+
+<script>
+/* ---------- Calculation engine (IPv4 only) ---------- */
+const CIPHERS = {
+  'null':             { fam: 'null',   block: 1,  iv: 0,  aead: false, ref: 'RFC 2410' },
+  'des':              { fam: 'des',    block: 8,  iv: 8,  aead: false, ref: 'RFC 2405' },
+  '3des':             { fam: '3des',   block: 8,  iv: 8,  aead: false, ref: 'RFC 2451' },
+  'aes128':           { fam: 'aescbc', block: 16, iv: 16, aead: false, ref: 'RFC 3602' },
+  'aes192':           { fam: 'aescbc', block: 16, iv: 16, aead: false, ref: 'RFC 3602' },
+  'aes256':           { fam: 'aescbc', block: 16, iv: 16, aead: false, ref: 'RFC 3602' },
+  'aria128':          { fam: 'aria',   block: 16, iv: 16, aead: false, ref: 'RFC 5794', unverified: true },
+  'aria192':          { fam: 'aria',   block: 16, iv: 16, aead: false, ref: 'RFC 5794', unverified: true },
+  'aria256':          { fam: 'aria',   block: 16, iv: 16, aead: false, ref: 'RFC 5794', unverified: true },
+  'seed':             { fam: 'seed',   block: 16, iv: 16, aead: false, ref: 'RFC 4196' },
+  'aes128gcm':        { fam: 'gcm',    block: 4,  iv: 8,  aead: true, icv: 16, ref: 'RFC 4106' },
+  'aes256gcm':        { fam: 'gcm',    block: 4,  iv: 8,  aead: true, icv: 16, ref: 'RFC 4106' },
+  'chacha20poly1305': { fam: 'chacha', block: 4,  iv: 8,  aead: true, icv: 16, ref: 'RFC 7634' }
+};
+const INTEG = {
+  'null':   { icv: 0,  ref: 'RFC 2410' },
+  'md5':    { icv: 12, ref: 'RFC 2403' },
+  'sha1':   { icv: 12, ref: 'RFC 2404' },
+  'sha256': { icv: 16, ref: 'RFC 4868' },
+  'sha384': { icv: 24, ref: 'RFC 4868' },
+  'sha512': { icv: 32, ref: 'RFC 4868' }
+};
+/* One representative cipher per family for the comparison matrix */
+const FAMILIES = [
+  { fam: 'null',   rep: 'null',   names: 'null' },
+  { fam: 'des',    rep: 'des',    names: 'des' },
+  { fam: '3des',   rep: '3des',   names: '3des' },
+  { fam: 'aescbc', rep: 'aes128', names: 'aes128 / aes192 / aes256' },
+  { fam: 'aria',   rep: 'aria128', names: 'aria128 / aria192 / aria256' },
+  { fam: 'seed',   rep: 'seed',   names: 'seed' },
+  { fam: 'gcm',    rep: 'aes128gcm', names: 'aes128gcm / aes256gcm' },
+  { fam: 'chacha', rep: 'chacha20poly1305', names: 'chacha20poly1305' }
+];
+const INTEG_ORDER = ['null', 'md5', 'sha1', 'sha256', 'sha384', 'sha512'];
+
+function proposalName(c, i) { return CIPHERS[c].aead ? c : c + '-' + i; }
+function isValidProposal(c, i) { return CIPHERS[c].aead || !(c === 'null' && i === 'null'); }
+function sumBytes(list) { return list.reduce((a, s) => a + s.b, 0); }
+
+/* cfg: { pathMtu, transport: 'esp'|'udp'|'tcp', tcpOpt, cipher, integ,
+          overlay: 'none'|'gre'|'vxlan', mode: 'tunnel'|'transport',
+          greCsum, greKey, greSeq, vxlanTag }
+   U  : size of the user IPv4 packet (bytes)                              */
+function buildPacket(cfg, U) {
+  const c = CIPHERS[cfg.cipher];
+  const icv = c.aead ? c.icv : INTEG[cfg.integ].icv;
+  const align = Math.max(c.block, 4);               // RFC 4303 §2.4: at least 4-byte alignment
+  const mode = cfg.overlay === 'gre' ? cfg.mode : 'tunnel';
+
+  const ovl = [];
+  if (cfg.overlay === 'gre') {
+    if (mode === 'tunnel') ovl.push({ k: 'greIp', b: 20 });
+    ovl.push({ k: 'gre', b: 4 });                     // RFC 2784 base header
+    if (cfg.greCsum) ovl.push({ k: 'greCsum', b: 4 }); // RFC 2890 field order: Checksum, Key, Sequence
+    if (cfg.greKey)  ovl.push({ k: 'greKey', b: 4 });
+    if (cfg.greSeq)  ovl.push({ k: 'greSeq', b: 4 });
+  } else if (cfg.overlay === 'vxlan') {
+    ovl.push({ k: 'vxIp', b: 20 }, { k: 'vxUdp', b: 8 }, { k: 'vxlan', b: 8 }, { k: 'eth', b: 14 });
+    if (cfg.vxlanTag) ovl.push({ k: 'dot1q', b: 4 });
+  }
+  const ovlBytes = sumBytes(ovl);
+  const payload = ovlBytes + U;                       // ESP Payload Data
+  const pad = (align - ((payload + 2) % align)) % align;
+
+  const segs = [];
+  segs.push({ k: mode === 'transport' ? 'outerIpT' : 'outerIp', b: 20, grp: 'outer' });
+  if (cfg.transport === 'udp') segs.push({ k: 'udp', b: 8, grp: 'encap' });
+  if (cfg.transport === 'tcp') {
+    segs.push({ k: 'tcp', b: 20 + (cfg.tcpOpt || 0), grp: 'encap' });
+    segs.push({ k: 'tcpLen', b: 2, grp: 'encap' });
+  }
+  segs.push({ k: 'espHdr', b: 8, grp: 'esp' });
+  if (c.iv) segs.push({ k: 'iv', b: c.iv, grp: 'esp', ref: c.ref });
+  ovl.forEach(o => segs.push({ k: o.k, b: o.b, grp: 'ovl', enc: true }));
+  segs.push({ k: 'user', b: U, grp: 'user', enc: true });
+  if (pad) segs.push({ k: 'pad', b: pad, grp: 'pad', enc: true });
+  segs.push({ k: 'trl', b: 2, grp: 'trl', enc: true });
+  if (icv) segs.push({ k: 'icv', b: icv, grp: 'icv', ref: c.aead ? c.ref : INTEG[cfg.integ].ref });
+
+  const total = sumBytes(segs);
+  const espLen = 8 + c.iv + payload + pad + 2 + icv;
+  return { segs, total, pad, payload, ovlBytes, icv, align, iv: c.iv, mode, espLen,
+           fixed: total - U - pad };
+}
+
+/* Largest user packet that fits into pathMtu (null if nothing fits) */
+function maxUser(cfg) {
+  const probe = buildPacket(cfg, 0);
+  let U = cfg.pathMtu - probe.fixed;
+  if (U < 0) return null;
+  for (; U >= 0; U--) {
+    const r = buildPacket(cfg, U);
+    if (r.total <= cfg.pathMtu) return { U, r };
+  }
+  return null;
+}
+
+if (typeof module !== 'undefined') module.exports = { CIPHERS, INTEG, FAMILIES, INTEG_ORDER, buildPacket, maxUser, proposalName, isValidProposal };
+
+/* ---------- Strings ---------- */
+const I18N = {
+cs: {
+  lede: 'Spočítá maximální MTU a TCP MSS pro IPsec (ESP) tunely nad IPv4 – site-to-site i remote access s FortiClientem, včetně NAT-T, IPsec over TCP a GRE/VXLAN overlaye. Hodnoty režie vycházejí z RFC a dokumentace Fortinet.',
+  gUnder: 'Podkladová linka (WAN)', custom: 'Vlastní',
+  wanMtu: 'MTU rozhraní WAN (B)', extra: 'Další režie na cestě (B)',
+  hintUnder: 'PPPoE = 6 B hlavička + 2 B PPP → 1492 (RFC 2516 §7). VLAN tag IP MTU nesnižuje – VLAN rozhraní na FortiGate dědí MTU z rodičovského rozhraní. Omezuje-li poskytovatel velikost rámce nebo je na cestě menší MTU, zadejte rozdíl do pole <i>Další režie</i>.',
+  useTitle: 'Využití path MTU', useSub: 'paket {u} B v path MTU {p} B',
+  lgData: 'Uživatelský paket', lgOver: 'Režie', lgFree: 'Rezerva', lgOverflow: 'Přesah', useCenter: 'využito',
+  layTitle: 'Režie po vrstvách', laySub: 'bajty jednotlivých hlaviček z celkové režie',
+  pchartSub: 'Výška sloupce = o kolik bajtů je MTU v tunelu menší než path MTU {n} B – režie plus zbytek, který kvůli zarovnání nejde využít (méně je lépe). Číslo nad sloupcem = MTU v tunelu. Zvýrazněný sloupec je zvolený návrh; klepnutím na sloupec návrh vyberete. Stejné hodnoty jsou v tabulce níže.',
+  tipOver: 'ztráta', tipMtu: 'MTU v tunelu',
+  gKind: 'Typ tunelu',
+  hintKind: 'Remote Access počítá s FortiClientem jako dial-up klientem: nabídne jen algoritmy z XML reference FortiClientu, přidá pole mtu_size a vygeneruje dial-up CLI a úryvek XML.',
+  wanMtuRA: 'MTU WAN na FortiGate (B)',
+  cliMtu: 'Nejmenší MTU cesty u klientů (B)',
+  hintUnderRA: 'Výpočet použije menší z obou hodnot. Klienti se připojují z různých sítí – zadejte nejhorší očekávanou MTU (např. PPPoE 1492).',
+  hintTcpPort: 'Musí odpovídat <code>&lt;tcp_port&gt;</code> u FortiClientu. CLI Reference 7.6.6 uvádí výchozí hodnotu 443, stránka Admin Guide „Encapsulate ESP packets within TCP headers“ 4500. Ověřte: <code>show full-configuration system settings | grep ike-tcp</code>.',
+  mtuSizeLbl: 'mtu_size klienta (576–1500 B)',
+  hintMtuSize: 'Výchozí hodnota podle XML reference FortiClientu je 1280. Tag je v sekci <code>&lt;ipsecvpn&gt;&lt;options&gt;</code>, platí tedy pro všechna IPsec připojení klienta. Klient z něj odvodí MSS = mtu_size − 40 a stejnou hodnotu nastavíme na tunelové rozhraní.',
+  mtuSizeErr: 'mtu_size musí být 576–1500.',
+  raFlagP1: 'XML reference FortiClient 8.0.0 není jednoznačná: stránka IKE settings uvádí pro fázi 1 jen DES, 3DES a AES128/192/256 × MD5 až SHA512, stránka IPsec settings navíc AES128GCM/AES256GCM a PRF SHA1–SHA512. Varianty s PRF (např. aes128gcm-prfsha256) má FortiOS jen ve fázi 1, proto je AES-GCM nabízeno i tady – ověřte s konkrétní verzí FortiClientu.',
+  raFlagP2: 'Nabídka odpovídá XML reference FortiClient 8.0.0 – IPsec: DES, 3DES, AES128/192/256, AES128GCM, AES256GCM.',
+  raFlagDh: 'XML reference FortiClientu seznam podporovaných DH skupin neuvádí – shodu s klientem ověřte.',
+  tMtuSubRA: 'největší paket, který se vejde do path MTU {p} B',
+  tMtuSize: 'mtu_size klienta', tMtuSizeOk: 'vejde se · rezerva {n} B', tMtuSizeBad: 'o {n} B víc než MTU v tunelu',
+  tMssRA: 'TCP MSS', tMssRASub: 'mtu_size − 40 · klient i tunelové rozhraní', tMssRASubCap: 'MTU v tunelu − 40 (mtu_size je příliš velké)',
+  warnMtuSize: 'mtu_size {m} B je větší než MTU v tunelu {u} B – zašifrovaný paket klienta by přesáhl path MTU {p} B. Snižte mtu_size nejvýš na {u} B. Jak se v takovém případě zachová FortiClient, dokumentace neuvádí.',
+  anatSubRA: 'Paket o velikosti mtu_size klienta ({u} B), jak odchází do sítě. Šířky hlaviček odpovídají počtu bajtů, datová část je zkrácená.',
+  matrixSubRA: 'MTU v tunelu a TCP MSS pro path MTU {n} B a enkapsulaci {t}; jen algoritmy podporované FortiClientem. Klepnutím na buňku návrh vyberete. U FortiClientu platí MSS nejvýš mtu_size − 40.',
+  cliN_raBase: 'Kostra vychází z příkladu „Dialup IPsec VPN using custom TCP port“ (Admin Guide 7.6.6, IKEv2 + FortiClient). Autentizaci, uživatelské skupiny a split tunnel doplňte – v CLI je na to komentář.',
+  cliN_raMss: '<code>tcp-mss</code> na tunelovém rozhraní odpovídá MSS klienta (mtu_size − 40). FortiGate MSS jen snižuje, takže MSS klienta nepřepíše a MSS v SYN-ACK ze serveru srovná na stejnou hodnotu (Fortinet KB).',
+  cliN_raEsp: '<code>nattraversal disable</code>: XML reference FortiClientu to doporučuje, pokud mezi klientem a FortiGate není NAT. Za NATem tunel nenaváže.',
+  cliN_raTcp: 'TCP enkapsulace: jen IKEv2 a bez NPU offloadu; <code>fortinet-esp</code> musí být u FortiClientu vypnuté. <code>&lt;tcp_port&gt;</code> v XML klienta musí odpovídat <code>ike-tcp-port</code>.',
+  cliN_raAuto: 'Režim Auto (FortiClient <code>transport_mode</code> 2) vyžaduje ve FortiOS 7.6 <code>set nattraversal forced</code> a <code>set transport auto</code>. Tunel pak může běžet přes NAT-T i TCP – spočítejte obě varianty a použijte menší MSS.',
+  xmlGcmComment: '<!-- AES-GCM: format proposalu overte v XML reference FortiClientu (uvadi napr. AES128GCM a PRF SHA256) -->',
+  cliAuthComment: '# Autentizace (PSK / certifikat / EAP / SAML) a uzivatelske skupiny doplnte podle prostredi',
+  xmlSub: 'Úryvek s volbami, které souvisejí s MTU a enkapsulací, podle XML reference FortiClient 8.0.0. Doplňte ho do existující konfigurace (např. v EMS); ostatní tagy připojení ponechte.',
+  xmlN1: '<code>&lt;mtu_size&gt;</code> je v sekci <code>&lt;options&gt;</code> a platí pro všechna IPsec připojení klienta.',
+  xmlN2: '<code>&lt;transport_mode&gt;</code>: 0 = UDP, 1 = TCP, 2 = Auto. Pro TCP musí <code>&lt;tcp_port&gt;</code> odpovídat <code>ike-tcp-port</code> na FortiGate.',
+  xmlN3: 'FortiClient 8.0.0 nepodporuje IKEv1, proto <code>&lt;version&gt;2</code>. Formát proposalu je „šifra|autentizace“; u AES-GCM XML reference formát jednoznačně neuvádí (píše např. „AES 256GCM“ a „PRF SHA256“ s mezerou), proto ho úryvek v žádné fázi negeneruje a místo něj vloží komentář.',
+  gTransport: 'Enkapsulace ESP',
+  fPost: 'post-encapsulation (výchozí)',
+  hintFrag: '<b>Post:</b> FortiGate nejdřív šifruje a velikost ESP paketu porovnává s MTU rodičovského rozhraní. <b>Pre:</b> fragmentuje před šifrováním podle MTU tunelového rozhraní, proto je nutné nastavit <code>mtu-override</code>. Pre-encapsulation podle Fortinet KB není v souladu s RFC.',
+  warnSa: 'SA MTU {n} B je menší než výchozí MTU IPsec rozhraní 1420 B. Nastavte na tunelovém rozhraní <code>mtu-override</code> s hodnotou <code>mtu {n}</code> – jinak může provoz generovaný samotným FortiGate (např. <code>execute ping</code>) přesáhnout SA MTU. Vygenerované CLI to už obsahuje.',
+  cliN_mtuPre: '<code>mtu-override</code> je v CLI, protože používáte <code>pre-encapsulation</code>: FortiGate pak velikost paketu porovnává s MTU tunelového rozhraní (Fortinet KB). Hodnota odpovídá SA MTU {n} B.',
+  cliN_mtuLow: '<code>mtu-override</code> je v CLI, protože SA MTU ({n} B) je menší než výchozí MTU IPsec rozhraní 1420 B, které platí pro provoz generovaný samotným FortiGate.',
+  cliN_mtuNone: '<code>mtu-override</code> v CLI není: při <code>post-encapsulation</code> se MTU tunelového rozhraní pro tranzitní provoz nepoužívá a výchozích 1420 B nepřesahuje SA MTU ({n} B). Nastavte ho, pokud SA MTU vyjde pod 1420 B nebo přejdete na <code>pre-encapsulation</code>.',
+  cliN_mtuT: 'Pro GRE v transport mode <code>mtu-override</code> negeneruji – dokumentace nepopisuje, jak se MTU IPsec rozhraní v tomto režimu uplatní.',
+  cliN_np6: 'NP6, NP6XLite a NP6Lite nepodporují <code>pre-encapsulation</code> s NPU offloadem – podle Fortinet KB je potřeba ve fázi 1 nastavit <code>set npu-offload disable</code>.',
+  exceedsPre: 'Režim pre-encapsulation: FortiGate paket fragmentuje podle MTU tunelového rozhraní a každý fragment zašifruje zvlášť. Je-li nastaven příznak DF (a výchozí <code>honor-df enable</code>), paket zahodí a klientovi pošle ICMP type 3 code 4 (Fortinet KB).',
+  tEsp: 'Nativní ESP', tEspSub: 'IP protokol 50 · +0 B', tUdpSub: 'ESP-in-UDP · port 4500 · +8 B', tTcpSub: 'RFC 8229 · TCP 20 B + Length 2 B',
+  tcpOpt: 'Volby TCP hlavičky (B)',
+  hintTcp: 'FortiOS: <code>set transport tcp</code>, jen IKEv2. Velikost proprietární hlavičky při <code>fortinet-esp enable</code> Fortinet neuvádí – výpočet používá standard RFC 8229.',
+  gProposal: 'Návrh fáze 2 (ESP)', enc: 'Šifrování', auth: 'Integrita', fortiName: 'FortiOS proposal',
+  pAlign: 'Zarovnání', pIv: 'IV', pIcv: 'ICV', aeadInteg: 'AEAD šifra má integritu vestavěnou – pole Integrita se ignoruje.',
+  nullNull: 'Kombinace null-null není platný návrh (ESP bez šifrování i integrity).',
+  ariaFlag: 'ARIA: Fortinet neuvádí režim šifry. Výpočet předpokládá CBC s IV = blok 16 B (blok 128 bitů dle RFC 5794). Ověřte v labu přes <code>diagnose vpn tunnel list</code>.',
+  gOverlay: 'Overlay uvnitř tunelu', ovNone: 'Žádný',
+  modeTitle: 'Režim IPsec', modeTunnel: 'Tunnel (+20 B IPv4)', modeTransport: 'Transport',
+  hintMode: 'Transport mode sdílí IPv4 hlavičku GRE s ESP a ušetří 20 B. Příklad „GRE over IPsec“ v Admin Guide používá tunnel mode.',
+  greOptsTitle: 'Volitelná pole GRE (RFC 2890)',
+  vxTag: 'Přenášet 802.1Q tag uvnitř VXLAN (+4 B)',
+  hintVx: 'VXLAN = IPv4 20 + UDP 8 + VXLAN 8 + Ethernet 14 B. Vnitřní FCS se nepřenáší (RFC 7348 §5).',
+  tMtu: 'MTU v tunelu', tMtuSub: 'největší IP paket uživatele, který projde bez fragmentace',
+  tMss: 'TCP MSS', tMssSub: 'MTU − 20 (IPv4) − 20 (TCP)',
+  tOver: 'Celková režie', tOverSub: '{f} B pevná + {p} B padding',
+  tSa: 'SA MTU', tSaSub: 'odpovídá <code>mtu=</code> v <code>diagnose vpn tunnel list</code>', tSaSubT: 'max. ESP payload (transport mode)',
+  pingLabel: 'Test z klienta s DF:',
+  errNoFit: 'Do path MTU {n} B se nevejde ani prázdný paket – samotná režie má {o} B.',
+  errMtu: 'MTU rozhraní WAN musí být 68–9216 B a další režie menší než MTU.',
+  warnMin: 'Výsledná MTU {n} B je pod minimem IPv4 68 B (RFC 791).',
+  anatomy: 'Anatomie paketu',
+  anatSub: 'Paket maximální velikosti ({u} B uživatelského IP paketu), jak odchází z rozhraní WAN. Šířky hlaviček odpovídají počtu bajtů, datová část je zkrácená.',
+  brEsp: 'ESP · RFC 4303', brEnc: 'šifrováno', brIcv: 'chráněno ICV', brUdp: 'NAT-T · RFC 3948', brTcp: 'TCP · RFC 8229',
+  colField: 'Pole', colOffset: 'Offset', colBytes: 'Bajty', colEnc: 'Šifr.', colRef: 'Zdroj',
+  rowTotal: 'Celkem na drátě', rowPath: 'Path MTU', rowSpare: 'Rezerva', yes: 'ano',
+  seg_outerIp: 'Vnější IPv4 hlavička', seg_outerIpT: 'IPv4 hlavička (GRE + ESP, transport mode)',
+  seg_udp: 'UDP hlavička (NAT-T)', seg_tcp: 'TCP hlavička', seg_tcpLen: 'Pole Length', seg_espHdr: 'ESP hlavička (SPI 4 + Seq 4)',
+  seg_iv: 'Inicializační vektor (IV)', seg_greIp: 'IPv4 hlavička GRE', seg_gre: 'GRE hlavička', seg_greCsum: 'GRE Checksum + Reserved1',
+  seg_greKey: 'GRE Key', seg_greSeq: 'GRE Sequence Number', seg_vxIp: 'IPv4 hlavička VXLAN', seg_vxUdp: 'UDP hlavička (VXLAN)',
+  seg_vxlan: 'VXLAN hlavička', seg_eth: 'Vnitřní Ethernet hlavička', seg_dot1q: 'Vnitřní 802.1Q tag',
+  seg_user: 'Uživatelský IP paket', seg_userD: 'IPv4 20 + TCP 20 + data {m}',
+  seg_pad: 'ESP Padding', seg_trl: 'Pad Length + Next Header', seg_icv: 'ICV (Integrity Check Value)',
+  check: 'Kontrola velikosti paketu',
+  checkSub: 'Zadejte velikost IP paketu, který vstupuje do tunelu. Pro ping platí: velikost = délka dat + 28 B (ICMP 8 + IPv4 20).',
+  pktSize: 'Velikost IP paketu (B)', cPad: 'ESP padding', cEsp: 'Velikost ESP', cOuter: 'Paket na WAN', cPath: 'Path MTU',
+  fits: 'Vejde se · rezerva {n} B', exceeds: 'Překračuje path MTU o {n} B',
+  exceedsNote: 'Režim post-encapsulation (výchozí): FortiGate paket zašifruje a ESP paket fragmentuje podle MTU rodičovského rozhraní. Je-li nastaven příznak DF (a výchozí <code>honor-df enable</code>), paket zahodí a klientovi pošle ICMP type 3 code 4 (Fortinet KB).',
+  pktErr: 'Zadejte velikost 20–65535 B.',
+  matrix: 'Srovnání návrhů',
+  matrixSub: 'MTU v tunelu a TCP MSS pro path MTU {n} B, enkapsulaci {t} a overlay: {o}. Klepnutím na buňku návrh vyberete.',
+  mCipher: 'Šifra \\ integrita', mAead: 'AEAD – integrita je součástí šifry', mInvalid: 'neplatné',
+  cli: 'FortiGate CLI',
+  cliSub: 'Kostra konfigurace pro zvolené parametry podle CLI Reference FortiOS 7.6. Hodnoty v <code>&lt;…&gt;</code> doplňte; ostatní nastavení tunelu (PSK, selektory, zbytek firewall policy) zůstává na vás.',
+  copy: 'Kopírovat', copied: 'Zkopírováno', copyFail: 'Kopírování zablokováno – text je označen, stiskněte Ctrl+C',
+  cliN_mtu: 'Při <code>post-encapsulation</code> ovlivní <code>mtu-override</code> na IPsec rozhraní (od FortiOS 6.4.0) podle Fortinet KB jen provoz, který generuje samotný FortiGate; tranzitní provoz řídí dynamicky počítaná SA MTU.',
+  cliN_mss: '<code>tcp-mss-sender</code> / <code>tcp-mss-receiver</code> v politice přepisují MSS v TCP SYN; <code>tcp-mss</code> na rozhraní dělá totéž pro celé rozhraní. MSS nastavte jen na jednom místě – blok firewall policy je varianta pro případ, že na rozhraní <code>tcp-mss</code> nastavený není. Řádky začínající <code>#</code> jsou podle Admin Guide („Configuration scripts“) komentáře a neprovádějí se.',
+  cliComment: '# Varianta: MSS ve firewall policy - pouzijte jen tehdy, kdyz na rozhrani neni nastaven tcp-mss',
+  cliN_nat: '<code>nattraversal enable</code> použije ESP-in-UDP jen při zjištění NAT; hodnota <code>forced</code> jej zapne vždy.',
+  cliN_esp: '<code>nattraversal disable</code> – ESP půjde jako IP protokol 50; za NATem tunel nenaváže.',
+  cliN_tcp: 'TCP enkapsulace funguje jen s IKEv2 a nepodporuje ADVPN ani NPU offload. Port určuje <code>ike-tcp-port</code> (viz poznámka u pole). Fortinet KB pro dial-up přes TCP doporučuje MSS 1360 – výpočet výše ukazuje přesnou hodnotu pro zadané parametry.',
+  cliN_gre: 'Struktura odpovídá příkladu „GRE over IPsec“ z Admin Guide 7.6.6 (tunnel mode, <code>protocol 47</code>, GRE mezi IP adresami IPsec rozhraní).',
+  cliN_greT: 'Transport mode: Admin Guide pro GRE s transport mode příklad nemá. Vygenerovány jsou jen ověřené volby fáze 2; adresaci GRE (koncové body = veřejné IP bran) a směrování ověřte v labu.',
+  cliN_vx: 'Struktura odpovídá příkladu „VXLAN over IPsec tunnel with virtual wire pair“ (Admin Guide 7.6.6). Mezi hosty v rozšířené L2 síti nefunguje PMTUD (není tam router, který by poslal ICMP) – nastavte MTU koncových zařízení nejvýše na MTU v tunelu. Zda se <code>tcp-mss-*</code> uplatní i na politice virtual-wire-pair, dokumentace neuvádí.',
+  notes: 'Poznámky k výpočtu',
+  n1: 'SA MTU počítá FortiOS dynamicky z path MTU a režie vyjednaných algoritmů. Bez provozu ukazuje <code>mtu=1280</code>, skutečnou hodnotu až po prvním paketu (Fortinet KB).',
+  n2: 'Výchozí MTU IPsec rozhraní je 1420 B a platí pro provoz generovaný samotným FortiGate; ruční <code>mtu-override</code> je k dispozici od FortiOS 6.4.0. <b>Pokud SA MTU vyjde pod 1420 B, nastavte <code>mtu-override</code> na hodnotu SA MTU.</b> Totéž platí při <code>ip-fragmentation pre-encapsulation</code>.',
+  n3: 'NAT-T přidává k ESP jen 8 B UDP hlavičky. Čtyřbajtový non-ESP marker se vkládá pouze do IKE paketů (RFC 3948 §2.2).',
+  n4: 'IPsec over TCP: před každým ESP paketem je 16bitové pole Length (RFC 8229 §3.2); prefix „IKETCP“ se posílá jen jednou na začátku spojení. TCP stream větší zprávy rozdělí sám – výpočet hledá velikost, při které se jeden ESP paket vejde do jednoho TCP segmentu.',
+  n5: 'Padding: u CBC šifer musí být (payload + 2) násobkem bloku (AES, ARIA, SEED 16 B; DES, 3DES 8 B). AES-GCM, ChaCha20-Poly1305 a NULL zarovnávají na 4 B. Proto MTU roste po skocích.',
+  n6: 'Integrita: HMAC-MD5-96 a HMAC-SHA1-96 = 12 B, HMAC-SHA2 zkrácené na polovinu = 16/24/32 B (RFC 4868). AES-GCM a ChaCha20-Poly1305: IV 8 B, ICV 16 B.',
+  n7: 'Výpočet nezahrnuje TFC padding (RFC 4303 §2.7), volby IPv4 hlavičky ani volby TCP na koncových stanicích.',
+  vectors: 'Ověřeno proti výpisům z dokumentace Fortinet',
+  vProp: 'Návrh', vEnc: 'Enkapsulace', vDst: 'dst_mtu', vFgt: 'FortiOS mtu=', vCalc: 'Kalkulačka', vSrc: 'Zdroj',
+  vectorsFoot: '* V tomto výpisu dst_mtu uvedeno není; kalkulačka počítá s 1500 B. Porovnává se SA MTU (tunnel mode).',
+  sources: 'Zdroje (RFC a dokumentace Fortinet)',
+  footA: 'Pouze IPv4 – IPv6 podklad ani IPv6 v tunelu výpočet neřeší.',
+  footB: 'Zdroje ověřeny 17. 9. 2026 · FortiOS 7.6.6 / 8.0.0',
+  gP1: 'Fáze 1 (IKEv2) – jen pro CLI',
+  hintP1: 'Návrh fáze 1 chrání jen řídicí provoz IKE, MTU datového provozu neovlivňuje. Promítne se do vygenerovaného CLI.',
+  p1Default: 'Výchozí seznam FortiOS (IKEv2)', p1Integ: 'Integrita / PRF',
+  dhTitle: 'DH skupiny (dhgrp)',
+  hintDh: 'Podle CLI Reference 7.6.6 je výchozí hodnota 20; může se lišit podle modelu.',
+  dhNone: 'Vyberte alespoň jednu DH skupinu.',
+  fragTitle: 'IKE fragmentace',
+  fragMtu: 'fragmentation-mtu (500–16000 B)',
+  fragErr: 'fragmentation-mtu musí být 500–16000.',
+  ike: 'IKE zprávy a fragmentace',
+  ikeSub: 'Velikost IKE zpráv se týká jen navazování tunelu, ne datového provozu. Největší zprávy bývají IKE_AUTH s certifikáty.',
+  ikeMax: 'Max. IKE zpráva bez IP fragmentace',
+  ikeTcp: 'Přes TCP',
+  ikeTcpVal: 'stream',
+  ikeFragOff: 'IKE fragmentace je vypnutá – zprávy větší než {n} B budou fragmentovány na úrovni IP.',
+  ikeFragOffNote: 'Právě kvůli IP fragmentům, které NAT a firewally často zahazují, RFC 7383 IKE fragmentaci zavádí (§1.1).',
+  ikeFragOk: 'fragmentation-mtu {v} ≤ {n} B – fragmenty IKE se do path MTU vejdou',
+  ikeFragWarn: 'fragmentation-mtu {v} > {n} B – fragmenty IKE mohou být fragmentovány na úrovni IP',
+  ikeFragWarnNote: 'Fortinet neuvádí, zda hodnota fragmentation-mtu zahrnuje IP/UDP hlavičky. Pokud je nejvýš {n} B, fragmenty se vejdou v obou případech.',
+  ikeTcpInfo: 'Přes TCP IKE fragmentaci nepotřebujete – stream sám rozdělí zprávy do segmentů (RFC 8229 §9).',
+  ik1: 'Zprávy výměny IKE_SA_INIT nelze fragmentovat (RFC 7383 §2.2). Velké bývají zprávy IKE_AUTH – s certifikáty i několik kB (RFC 7383 §1.1).',
+  ik2: 'Podpora se vyjednává notifikací <code>IKEV2_FRAGMENTATION_SUPPORTED</code> ve výměně IKE_SA_INIT (RFC 7383 §2.3).',
+  ik3: 'FortiOS s IKEv2: přesáhnou-li IKE payloady práh <code>fragmentation-mtu</code> (výchozí 1200), FortiGate je fragmentuje a šifruje preventivně. U IKEv1 fragmentuje jen při opakovaném odeslání a jen pakety větší než 576 B. Fragmentace je ve výchozím stavu zapnutá.',
+  ik4: 'RFC 7383 §2.5.1: známou PMTU má odesílatel použít; jinak se pro IPv4 doporučuje maximální IP datagram 576 B. Tunely na cestě mohou tuto hodnotu dál snížit.',
+  ik5: 'Na UDP 4500 (NAT-T) i přes TCP nese každá IKE zpráva 4B non-ESP marker (RFC 3948 §2.2, RFC 8229 §3.1).',
+  cliN_p1: 'Návrh a DH skupiny fáze 1 MTU datového provozu neovlivňují. <code>fragmentation</code> a <code>fragmentation-mtu</code> jsou volby IKEv2 podle Admin Guide („Choosing IKE version 1 and 2“).',
+  none: 'žádný'
+},
+en: {
+  lede: 'Calculates the maximum MTU and TCP MSS for IPsec (ESP) tunnels over IPv4 — site-to-site and FortiClient remote access, including NAT-T, IPsec over TCP and GRE/VXLAN overlays. Overhead values come from the RFCs and Fortinet documentation.',
+  gUnder: 'Underlay (WAN)', custom: 'Custom',
+  wanMtu: 'WAN interface MTU (B)', extra: 'Extra path overhead (B)',
+  hintUnder: 'PPPoE = 6 B header + 2 B PPP → 1492 (RFC 2516 §7). A VLAN tag does not reduce the IP MTU — FortiGate VLAN interfaces inherit the parent interface MTU. If the provider limits the frame size or a smaller MTU sits on the path, enter the difference as <i>extra path overhead</i>.',
+  useTitle: 'Path MTU usage', useSub: '{u} B packet in a {p} B path MTU',
+  lgData: 'User packet', lgOver: 'Overhead', lgFree: 'Headroom', lgOverflow: 'Overflow', useCenter: 'used',
+  layTitle: 'Overhead by layer', laySub: 'bytes per header out of the total overhead',
+  pchartSub: 'Bar height = how many bytes the tunnel MTU is below the {n} B path MTU — overhead plus any remainder lost to alignment (lower is better). The number above = tunnel MTU. The highlighted bar is the selected proposal; click a bar to select it. The table below has the same values.',
+  tipOver: 'loss', tipMtu: 'tunnel MTU',
+  gKind: 'Tunnel type',
+  hintKind: 'Remote Access assumes FortiClient as the dial-up client: it offers only algorithms listed in the FortiClient XML reference, adds the mtu_size field, and generates dial-up CLI and an XML snippet.',
+  wanMtuRA: 'FortiGate WAN MTU (B)',
+  cliMtu: 'Smallest client path MTU (B)',
+  hintUnderRA: 'The calculation uses the smaller of the two values. Clients connect from many networks — enter the worst expected MTU (e.g. PPPoE 1492).',
+  hintTcpPort: 'Must match <code>&lt;tcp_port&gt;</code> on FortiClient. CLI Reference 7.6.6 lists a default of 443; the Admin Guide page "Encapsulate ESP packets within TCP headers" says 4500. Check with <code>show full-configuration system settings | grep ike-tcp</code>.',
+  mtuSizeLbl: 'Client mtu_size (576–1500 B)',
+  hintMtuSize: 'Default per the FortiClient XML reference is 1280. The tag sits under <code>&lt;ipsecvpn&gt;&lt;options&gt;</code>, so it applies to all of the client\'s IPsec connections. The client derives MSS = mtu_size − 40, and the same value is set on the tunnel interface.',
+  mtuSizeErr: 'mtu_size must be 576–1500.',
+  raFlagP1: 'The FortiClient 8.0.0 XML reference is ambiguous: the IKE settings page lists only DES, 3DES and AES128/192/256 × MD5 to SHA512 for phase 1, while the IPsec settings page adds AES128GCM/AES256GCM and PRF SHA1–SHA512. FortiOS has PRF variants (e.g. aes128gcm-prfsha256) only in phase 1, so AES-GCM is offered here too — verify with your FortiClient version.',
+  raFlagP2: 'Choices follow the FortiClient 8.0.0 XML reference — IPsec: DES, 3DES, AES128/192/256, AES128GCM, AES256GCM.',
+  raFlagDh: 'The FortiClient XML reference does not list supported DH groups — verify they match the client.',
+  tMtuSubRA: 'largest packet that fits a {p} B path MTU',
+  tMtuSize: 'Client mtu_size', tMtuSizeOk: 'fits · {n} B headroom', tMtuSizeBad: '{n} B above the tunnel MTU',
+  tMssRA: 'TCP MSS', tMssRASub: 'mtu_size − 40 · client and tunnel interface', tMssRASubCap: 'tunnel MTU − 40 (mtu_size is too large)',
+  warnMtuSize: 'mtu_size {m} B is larger than the tunnel MTU {u} B — the client\'s encrypted packet would exceed the {p} B path MTU. Lower mtu_size to {u} B or less. The documentation does not say how FortiClient behaves in that case.',
+  anatSubRA: 'A packet of the client\'s mtu_size ({u} B) as it leaves for the network. Header widths follow byte counts; the data part is shortened.',
+  matrixSubRA: 'Tunnel MTU and TCP MSS for a {n} B path MTU and {t} encapsulation; FortiClient-supported algorithms only. Click a cell to select that proposal. With FortiClient the MSS is at most mtu_size − 40.',
+  cliN_raBase: 'The skeleton follows the "Dialup IPsec VPN using custom TCP port" example (Admin Guide 7.6.6, IKEv2 + FortiClient). Add authentication, user groups and split tunneling yourself — the CLI has a comment for it.',
+  cliN_raMss: '<code>tcp-mss</code> on the tunnel interface matches the client MSS (mtu_size − 40). The FortiGate only lowers MSS, so it will not overwrite the client value and it brings the server\'s SYN-ACK MSS down to the same value (Fortinet KB).',
+  cliN_raEsp: '<code>nattraversal disable</code>: the FortiClient XML reference recommends it when there is no NAT between the client and the FortiGate. Behind NAT the tunnel will not come up.',
+  cliN_raTcp: 'TCP encapsulation: IKEv2 only, no NPU offload; <code>fortinet-esp</code> must stay disabled for FortiClient. The client\'s <code>&lt;tcp_port&gt;</code> must match <code>ike-tcp-port</code>.',
+  cliN_raAuto: 'Auto mode (FortiClient <code>transport_mode</code> 2) requires <code>set nattraversal forced</code> and <code>set transport auto</code> on FortiOS 7.6. The tunnel may then run over NAT-T or TCP — calculate both and use the smaller MSS.',
+  xmlGcmComment: '<!-- AES-GCM: check the proposal format in the FortiClient XML reference (it lists e.g. AES128GCM and PRF SHA256) -->',
+  cliAuthComment: '# Authentication (PSK / certificate / EAP / SAML) and user groups - add for your environment',
+  xmlSub: 'A snippet with the MTU- and encapsulation-related options, per the FortiClient 8.0.0 XML reference. Merge it into an existing configuration (e.g. in EMS); keep the other connection tags.',
+  xmlN1: '<code>&lt;mtu_size&gt;</code> sits under <code>&lt;options&gt;</code> and applies to all of the client\'s IPsec connections.',
+  xmlN2: '<code>&lt;transport_mode&gt;</code>: 0 = UDP, 1 = TCP, 2 = Auto. For TCP, <code>&lt;tcp_port&gt;</code> must match <code>ike-tcp-port</code> on the FortiGate.',
+  xmlN3: 'FortiClient 8.0.0 does not support IKEv1, hence <code>&lt;version&gt;2</code>. The proposal format is "cipher|auth"; for AES-GCM the XML reference does not give an unambiguous format (it writes e.g. "AES 256GCM" and "PRF SHA256" with a space), so the snippet leaves it out in both phases and adds a comment instead.',
+  gTransport: 'ESP encapsulation',
+  fPost: 'post-encapsulation (default)',
+  hintFrag: '<b>Post:</b> the FortiGate encrypts first and compares the ESP packet size with the parent interface MTU. <b>Pre:</b> it fragments before encryption based on the tunnel interface MTU, so <code>mtu-override</code> must be set. Per Fortinet KB, pre-encapsulation is not RFC compliant.',
+  warnSa: 'The SA MTU of {n} B is below the default IPsec interface MTU of 1420 B. Set <code>mtu-override</code> with <code>mtu {n}</code> on the tunnel interface — otherwise traffic generated by the FortiGate itself (e.g. <code>execute ping</code>) can exceed the SA MTU. The generated CLI already includes it.',
+  cliN_mtuPre: '<code>mtu-override</code> is included because you use <code>pre-encapsulation</code>: the FortiGate then compares packet size with the tunnel interface MTU (Fortinet KB). The value matches the SA MTU of {n} B.',
+  cliN_mtuLow: '<code>mtu-override</code> is included because the SA MTU ({n} B) is below the default IPsec interface MTU of 1420 B, which applies to traffic generated by the FortiGate itself.',
+  cliN_mtuNone: '<code>mtu-override</code> is not included: with <code>post-encapsulation</code> the tunnel interface MTU is not used for transit traffic, and the default 1420 B does not exceed the SA MTU ({n} B). Set it if the SA MTU drops below 1420 B or you switch to <code>pre-encapsulation</code>.',
+  cliN_mtuT: 'No <code>mtu-override</code> is generated for GRE in transport mode — the documentation does not describe how the IPsec interface MTU applies in that mode.',
+  cliN_np6: 'NP6, NP6XLite and NP6Lite do not support <code>pre-encapsulation</code> with NPU offload — per Fortinet KB, set <code>set npu-offload disable</code> in phase 1.',
+  exceedsPre: 'Pre-encapsulation: the FortiGate fragments the packet based on the tunnel interface MTU and encrypts each fragment separately. With the DF flag set (and the default <code>honor-df enable</code>) it drops the packet and sends ICMP type 3 code 4 to the client (Fortinet KB).',
+  tEsp: 'Native ESP', tEspSub: 'IP protocol 50 · +0 B', tUdpSub: 'ESP-in-UDP · port 4500 · +8 B', tTcpSub: 'RFC 8229 · TCP 20 B + Length 2 B',
+  tcpOpt: 'TCP header options (B)',
+  hintTcp: 'FortiOS: <code>set transport tcp</code>, IKEv2 only. Fortinet does not publish the header size used with <code>fortinet-esp enable</code> — the calculation uses standard RFC 8229.',
+  gProposal: 'Phase 2 proposal (ESP)', enc: 'Encryption', auth: 'Integrity', fortiName: 'FortiOS proposal',
+  pAlign: 'Alignment', pIv: 'IV', pIcv: 'ICV', aeadInteg: 'AEAD ciphers have built-in integrity — the Integrity field is ignored.',
+  nullNull: 'null-null is not a valid proposal (ESP with neither encryption nor integrity).',
+  ariaFlag: 'ARIA: Fortinet does not state the cipher mode. The calculation assumes CBC with IV = 16 B block (128-bit block per RFC 5794). Verify in a lab with <code>diagnose vpn tunnel list</code>.',
+  gOverlay: 'Overlay inside the tunnel', ovNone: 'None',
+  modeTitle: 'IPsec mode', modeTunnel: 'Tunnel (+20 B IPv4)', modeTransport: 'Transport',
+  hintMode: 'Transport mode shares the GRE IPv4 header with ESP and saves 20 B. The "GRE over IPsec" example in the Admin Guide uses tunnel mode.',
+  greOptsTitle: 'Optional GRE fields (RFC 2890)',
+  vxTag: 'Carry an 802.1Q tag inside VXLAN (+4 B)',
+  hintVx: 'VXLAN = IPv4 20 + UDP 8 + VXLAN 8 + Ethernet 14 B. The inner FCS is not carried (RFC 7348 §5).',
+  tMtu: 'Tunnel MTU', tMtuSub: 'largest user IP packet that passes without fragmentation',
+  tMss: 'TCP MSS', tMssSub: 'MTU − 20 (IPv4) − 20 (TCP)',
+  tOver: 'Total overhead', tOverSub: '{f} B fixed + {p} B padding',
+  tSa: 'SA MTU', tSaSub: 'matches <code>mtu=</code> in <code>diagnose vpn tunnel list</code>', tSaSubT: 'max ESP payload (transport mode)',
+  pingLabel: 'Test from a client with DF:',
+  errNoFit: 'Not even an empty packet fits into a {n} B path MTU — the overhead alone is {o} B.',
+  errMtu: 'WAN MTU must be 68–9216 B and the extra overhead smaller than the MTU.',
+  warnMin: 'The resulting MTU of {n} B is below the IPv4 minimum of 68 B (RFC 791).',
+  anatomy: 'Packet anatomy',
+  anatSub: 'A maximum-size packet ({u} B user IP packet) as it leaves the WAN interface. Header widths follow byte counts; the data part is shortened.',
+  brEsp: 'ESP · RFC 4303', brEnc: 'encrypted', brIcv: 'covered by ICV', brUdp: 'NAT-T · RFC 3948', brTcp: 'TCP · RFC 8229',
+  colField: 'Field', colOffset: 'Offset', colBytes: 'Bytes', colEnc: 'Enc.', colRef: 'Source',
+  rowTotal: 'Total on the wire', rowPath: 'Path MTU', rowSpare: 'Headroom', yes: 'yes',
+  seg_outerIp: 'Outer IPv4 header', seg_outerIpT: 'IPv4 header (GRE + ESP, transport mode)',
+  seg_udp: 'UDP header (NAT-T)', seg_tcp: 'TCP header', seg_tcpLen: 'Length field', seg_espHdr: 'ESP header (SPI 4 + Seq 4)',
+  seg_iv: 'Initialization vector (IV)', seg_greIp: 'GRE IPv4 header', seg_gre: 'GRE header', seg_greCsum: 'GRE Checksum + Reserved1',
+  seg_greKey: 'GRE Key', seg_greSeq: 'GRE Sequence Number', seg_vxIp: 'VXLAN IPv4 header', seg_vxUdp: 'UDP header (VXLAN)',
+  seg_vxlan: 'VXLAN header', seg_eth: 'Inner Ethernet header', seg_dot1q: 'Inner 802.1Q tag',
+  seg_user: 'User IP packet', seg_userD: 'IPv4 20 + TCP 20 + data {m}',
+  seg_pad: 'ESP Padding', seg_trl: 'Pad Length + Next Header', seg_icv: 'ICV (Integrity Check Value)',
+  check: 'Packet size check',
+  checkSub: 'Enter the size of an IP packet entering the tunnel. For ping: size = data length + 28 B (ICMP 8 + IPv4 20).',
+  pktSize: 'IP packet size (B)', cPad: 'ESP padding', cEsp: 'ESP size', cOuter: 'Packet on WAN', cPath: 'Path MTU',
+  fits: 'Fits · {n} B headroom', exceeds: 'Exceeds path MTU by {n} B',
+  exceedsNote: 'Post-encapsulation (default): the FortiGate encrypts the packet and fragments the ESP packet based on the parent interface MTU. With the DF flag set (and the default <code>honor-df enable</code>) it drops the packet and sends ICMP type 3 code 4 to the client (Fortinet KB).',
+  pktErr: 'Enter a size of 20–65535 B.',
+  matrix: 'Proposal comparison',
+  matrixSub: 'Tunnel MTU and TCP MSS for a {n} B path MTU, {t} encapsulation and overlay: {o}. Click a cell to select that proposal.',
+  mCipher: 'Cipher \\ integrity', mAead: 'AEAD — integrity is built in', mInvalid: 'invalid',
+  cli: 'FortiGate CLI',
+  cliSub: 'A configuration skeleton for the chosen parameters, based on the FortiOS 7.6 CLI Reference. Fill in the <code>&lt;…&gt;</code> values; the rest of the tunnel (PSK, selectors, the remaining firewall policy fields) is up to you.',
+  copy: 'Copy', copied: 'Copied', copyFail: 'Copy blocked — the text is selected, press Ctrl+C',
+  cliN_mtu: 'With <code>post-encapsulation</code>, per Fortinet KB, <code>mtu-override</code> on an IPsec interface (FortiOS 6.4.0+) only affects traffic the FortiGate generates itself; transit traffic follows the dynamically calculated SA MTU.',
+  cliN_mss: '<code>tcp-mss-sender</code> / <code>tcp-mss-receiver</code> in a policy rewrite the MSS in TCP SYN; <code>tcp-mss</code> on an interface does the same for the whole interface. Set the MSS in one place only — the firewall policy block is the alternative for when <code>tcp-mss</code> is not set on the interface. Lines starting with <code>#</code> are comments and are not executed (Admin Guide, "Configuration scripts").',
+  cliComment: '# Alternative: MSS in the firewall policy - use only when tcp-mss is not set on the interface',
+  cliN_nat: '<code>nattraversal enable</code> uses ESP-in-UDP only when NAT is detected; <code>forced</code> always enables it.',
+  cliN_esp: '<code>nattraversal disable</code> — ESP is sent as IP protocol 50; the tunnel will not come up behind NAT.',
+  cliN_tcp: 'TCP encapsulation works with IKEv2 only and supports neither ADVPN nor NPU offload. The port is set by <code>ike-tcp-port</code> (see the note at the field). A Fortinet KB recommends MSS 1360 for dial-up over TCP — the calculation above gives the exact value for your parameters.',
+  cliN_gre: 'The structure follows the "GRE over IPsec" example in Admin Guide 7.6.6 (tunnel mode, <code>protocol 47</code>, GRE between the IPsec interface IP addresses).',
+  cliN_greT: 'Transport mode: the Admin Guide has no GRE example with transport mode. Only the verified phase 2 options are generated; verify GRE addressing (endpoints = gateway public IPs) and routing in a lab.',
+  cliN_vx: 'The structure follows the "VXLAN over IPsec tunnel with virtual wire pair" example (Admin Guide 7.6.6). PMTUD does not work between hosts on the extended L2 network (no router to send ICMP) — set end-host MTU to at most the tunnel MTU. The documentation does not say whether <code>tcp-mss-*</code> applies to a virtual-wire-pair policy.',
+  notes: 'Calculation notes',
+  n1: 'FortiOS calculates the SA MTU dynamically from the path MTU and the overhead of the negotiated algorithms. Without traffic it shows <code>mtu=1280</code>; the real value appears after the first packet (Fortinet KB).',
+  n2: 'The default IPsec interface MTU is 1420 B and applies to traffic generated by the FortiGate itself; manual <code>mtu-override</code> is available since FortiOS 6.4.0. <b>If the SA MTU is below 1420 B, set <code>mtu-override</code> to the SA MTU.</b> The same applies with <code>ip-fragmentation pre-encapsulation</code>.',
+  n3: 'NAT-T adds only an 8 B UDP header to ESP. The 4-byte non-ESP marker is inserted only into IKE packets (RFC 3948 §2.2).',
+  n4: 'IPsec over TCP: every ESP packet is preceded by a 16-bit Length field (RFC 8229 §3.2); the "IKETCP" prefix is sent only once at the start of the connection. The TCP stream splits larger messages itself — the calculation finds the size at which one ESP packet fits into one TCP segment.',
+  n5: 'Padding: for CBC ciphers (payload + 2) must be a multiple of the block size (AES, ARIA, SEED 16 B; DES, 3DES 8 B). AES-GCM, ChaCha20-Poly1305 and NULL align to 4 B. That is why the MTU moves in steps.',
+  n6: 'Integrity: HMAC-MD5-96 and HMAC-SHA1-96 = 12 B; HMAC-SHA2 truncated to half = 16/24/32 B (RFC 4868). AES-GCM and ChaCha20-Poly1305: IV 8 B, ICV 16 B.',
+  n7: 'Not included: TFC padding (RFC 4303 §2.7), IPv4 header options, and TCP options on end hosts.',
+  vectors: 'Checked against output in Fortinet documentation',
+  vProp: 'Proposal', vEnc: 'Encapsulation', vDst: 'dst_mtu', vFgt: 'FortiOS mtu=', vCalc: 'Calculator', vSrc: 'Source',
+  vectorsFoot: '* This output does not show dst_mtu; the calculator assumes 1500 B. The SA MTU (tunnel mode) is compared.',
+  sources: 'Sources (RFCs and Fortinet documentation)',
+  footA: 'IPv4 only — neither an IPv6 underlay nor IPv6 inside the tunnel is covered.',
+  footB: 'Sources checked 17 Sep 2026 · FortiOS 7.6.6 / 8.0.0',
+  gP1: 'Phase 1 (IKEv2) — CLI only',
+  hintP1: 'The phase 1 proposal protects only IKE control traffic and does not affect the data-plane MTU. It is used in the generated CLI.',
+  p1Default: 'FortiOS default list (IKEv2)', p1Integ: 'Integrity / PRF',
+  dhTitle: 'DH groups (dhgrp)',
+  hintDh: 'Per CLI Reference 7.6.6 the default is 20; it may differ between models.',
+  dhNone: 'Select at least one DH group.',
+  fragTitle: 'IKE fragmentation',
+  fragMtu: 'fragmentation-mtu (500–16000 B)',
+  fragErr: 'fragmentation-mtu must be 500–16000.',
+  ike: 'IKE messages and fragmentation',
+  ikeSub: 'IKE message size matters only for tunnel setup, not for data traffic. The largest messages are usually IKE_AUTH with certificates.',
+  ikeMax: 'Max IKE message without IP fragmentation',
+  ikeTcp: 'Over TCP',
+  ikeTcpVal: 'stream',
+  ikeFragOff: 'IKE fragmentation is disabled — messages larger than {n} B will be fragmented at the IP level.',
+  ikeFragOffNote: 'IP fragments are often dropped by NATs and firewalls, which is exactly why RFC 7383 introduced IKE fragmentation (§1.1).',
+  ikeFragOk: 'fragmentation-mtu {v} ≤ {n} B — IKE fragments fit into the path MTU',
+  ikeFragWarn: 'fragmentation-mtu {v} > {n} B — IKE fragments may be fragmented at the IP level',
+  ikeFragWarnNote: 'Fortinet does not state whether fragmentation-mtu includes the IP/UDP headers. At {n} B or less, fragments fit either way.',
+  ikeTcpInfo: 'Over TCP you do not need IKE fragmentation — the stream splits messages into segments itself (RFC 8229 §9).',
+  ik1: 'IKE_SA_INIT messages cannot be fragmented (RFC 7383 §2.2). Large messages are typically IKE_AUTH — several kB with certificates (RFC 7383 §1.1).',
+  ik2: 'Support is negotiated with the <code>IKEV2_FRAGMENTATION_SUPPORTED</code> notification in IKE_SA_INIT (RFC 7383 §2.3).',
+  ik3: 'FortiOS with IKEv2: when IKE payloads exceed the <code>fragmentation-mtu</code> threshold (default 1200), the FortiGate fragments and encrypts them preemptively. With IKEv1 it fragments only on retransmission and only packets larger than 576 B. Fragmentation is enabled by default.',
+  ik4: 'RFC 7383 §2.5.1: a sender should use the PMTU when known; otherwise a maximum IP datagram of 576 B is recommended for IPv4. Tunnels on the path may reduce this further.',
+  ik5: 'On UDP 4500 (NAT-T) and over TCP, every IKE message carries a 4-byte non-ESP marker (RFC 3948 §2.2, RFC 8229 §3.1).',
+  cliN_p1: 'The phase 1 proposal and DH groups do not affect the data-plane MTU. <code>fragmentation</code> and <code>fragmentation-mtu</code> are the IKEv2 options from the Admin Guide ("Choosing IKE version 1 and 2").',
+  none: 'none'
+}
+};
+
+/* ---------- UI ---------- */
+(function () {
+  const $ = id => document.getElementById(id);
+  let lang = 'cs';
+  try { const s = localStorage.getItem('ipsecmtu.lang'); if (s === 'cs' || s === 'en') lang = s; } catch (e) { /* storage unavailable */ }
+
+  const t = (k, vars) => {
+    let s = I18N[lang][k];
+    if (s === undefined) s = I18N.cs[k] !== undefined ? I18N.cs[k] : k;
+    if (vars) Object.keys(vars).forEach(a => { s = s.split('{' + a + '}').join(vars[a]); });
+    return s;
+  };
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const clampInt = (v, lo, hi) => { const n = parseInt(v, 10); return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : lo; };
+
+  const SHORT = { outerIp: 'IPv4', outerIpT: 'IPv4', udp: 'UDP', tcp: 'TCP', tcpLen: 'Len', espHdr: 'ESP', iv: 'IV',
+    greIp: 'IPv4', gre: 'GRE', greCsum: 'Csum', greKey: 'Key', greSeq: 'Seq', vxIp: 'IPv4', vxUdp: 'UDP',
+    vxlan: 'VXLAN', eth: 'Eth', dot1q: '802.1Q', user: 'Data', pad: 'Pad', trl: 'PL+NH', icv: 'ICV' };
+  const COLOR = { outerIp: '--seg-ip', outerIpT: '--seg-ip', udp: '--seg-l4', tcp: '--seg-l4', tcpLen: '--seg-l4',
+    espHdr: '--seg-esp', iv: '--seg-iv', greIp: '--seg-ovl', gre: '--seg-ovl', greCsum: '--seg-ovl', greKey: '--seg-ovl',
+    greSeq: '--seg-ovl', vxIp: '--seg-ovl', vxUdp: '--seg-ovl', vxlan: '--seg-ovl', eth: '--seg-ovl', dot1q: '--seg-ovl',
+    pad: '--seg-pad', trl: '--seg-trl', icv: '--seg-icv' };
+  const SEG_INK = { outerIp: '#023444', outerIpT: '#023444', udp: '#023444', tcp: '#023444', tcpLen: '#023444',
+    trl: '#023444', icv: '#023444' };                       // other segments use white text
+  const LY = { outerIp: 'IPv4', outerIpT: 'IPv4 (GRE + ESP)', udp: 'UDP (NAT-T)', tcp: 'TCP', tcpLen: 'RFC 8229 Length',
+    espHdr: 'ESP (SPI + Seq)', iv: 'IV', greIp: 'IPv4 (GRE)', gre: 'GRE', greCsum: 'GRE Checksum', greKey: 'GRE Key',
+    greSeq: 'GRE Sequence', vxIp: 'IPv4 (VXLAN)', vxUdp: 'UDP (VXLAN)', vxlan: 'VXLAN', eth: 'Ethernet', dot1q: '802.1Q',
+    pad: 'Padding', trl: 'Pad Length + Next Header', icv: 'ICV' };
+  const PCH_S2S = [['aes128', 'sha1'], ['aes256', 'sha256'], ['aes256', 'sha384'], ['aes256', 'sha512'], ['3des', 'sha1'], ['aes256gcm', 'null'], ['chacha20poly1305', 'null']];
+  const PCH_RA = [['aes128', 'sha1'], ['aes256', 'sha256'], ['aes256', 'sha384'], ['aes256', 'sha512'], ['3des', 'sha1'], ['aes256gcm', 'null']];
+  const REF = { outerIp: 'RFC 791', outerIpT: 'RFC 791', udp: 'RFC 3948 §2.1', tcp: 'RFC 9293', tcpLen: 'RFC 8229 §3.2',
+    espHdr: 'RFC 4303 §2.1–2.2', greIp: 'RFC 791', gre: 'RFC 2784 §2.1', greCsum: 'RFC 2784 §2.1', greKey: 'RFC 2890 §2.1',
+    greSeq: 'RFC 2890 §2.2', vxIp: 'RFC 791', vxUdp: 'RFC 7348 §5', vxlan: 'RFC 7348 §5', eth: 'RFC 7348 §5',
+    dot1q: 'RFC 7348 §5', user: '', pad: 'RFC 4303 §2.4', trl: 'RFC 4303 §2.5–2.6' };
+  const FAM_LABEL = { null: 'NULL', des: 'DES-CBC', '3des': '3DES-CBC', aescbc: 'AES-CBC', aria: 'ARIA', seed: 'SEED-CBC',
+    gcm: 'AES-GCM', chacha: 'ChaCha20-Poly1305' };
+  const TR_LABEL = { esp: 'ESP', udp: 'NAT-T', tcp: 'TCP' };
+  /* Phase 1 (IKEv2) – names per FortiOS 7.6.6 CLI Reference, default list per Admin Guide "Encryption algorithms" */
+  const P1_DEFAULT = 'aes128-sha256 aes256-sha256 aes128gcm-prfsha256 aes256gcm-prfsha384 chacha20poly1305-prfsha256';
+  const P1_AEAD = ['aes128gcm', 'aes256gcm', 'chacha20poly1305'];
+  const P1_INTEG = ['sha256', 'sha384', 'sha512', 'sha1', 'md5'];
+  const P1_PRF = ['prfsha256', 'prfsha384', 'prfsha512', 'prfsha1'];
+  /* Remote Access – algorithms listed in the FortiClient 8.0.0 XML reference (IKE settings / IPsec settings) */
+  const RA_P1 = ['des', '3des', 'aes128', 'aes192', 'aes256', 'aes128gcm', 'aes256gcm'];
+  const RA_P2 = ['des', '3des', 'aes128', 'aes192', 'aes256', 'aes128gcm', 'aes256gcm'];
+  const RA_INTEG = ['md5', 'sha1', 'sha256', 'sha384', 'sha512'];
+  const RA_FAMS = ['des', '3des', 'aescbc', 'gcm'];
+  const XML_ENC = { des: 'DES', '3des': '3DES', aes128: 'AES128', aes192: 'AES192', aes256: 'AES256' };
+
+  const RFC = n => 'https://www.rfc-editor.org/rfc/rfc' + n;
+  const FDOC = 'https://docs.fortinet.com/document/fortigate/';
+  const SOURCES = [
+    ['RFC 4303 – IP Encapsulating Security Payload (ESP)', RFC(4303)],
+    ['RFC 3948 – UDP Encapsulation of IPsec ESP Packets', RFC(3948)],
+    ['RFC 8229 – TCP Encapsulation of IKE and IPsec Packets', RFC(8229)],
+    ['RFC 3602 – AES-CBC Cipher Algorithm and Its Use with IPsec', RFC(3602)],
+    ['RFC 2405 – ESP DES-CBC Cipher Algorithm', RFC(2405)],
+    ['RFC 2451 – ESP CBC-Mode Cipher Algorithms (3DES)', RFC(2451)],
+    ['RFC 4196 – SEED Cipher Algorithm and Its Use with IPsec', RFC(4196)],
+    ['RFC 5794 – A Description of the ARIA Encryption Algorithm', RFC(5794)],
+    ['RFC 4106 – GCM in IPsec ESP', RFC(4106)],
+    ['RFC 7634 – ChaCha20, Poly1305, and Their Use in IKE and IPsec', RFC(7634)],
+    ['RFC 2403 – HMAC-MD5-96 within ESP and AH', RFC(2403)],
+    ['RFC 2404 – HMAC-SHA-1-96 within ESP and AH', RFC(2404)],
+    ['RFC 4868 – HMAC-SHA-256, -384, and -512 with IPsec', RFC(4868)],
+    ['RFC 2410 – The NULL Encryption Algorithm', RFC(2410)],
+    ['RFC 2784 – Generic Routing Encapsulation (GRE)', RFC(2784)],
+    ['RFC 2890 – Key and Sequence Number Extensions to GRE', RFC(2890)],
+    ['RFC 7348 – VXLAN', RFC(7348)],
+    ['RFC 2516 – PPP over Ethernet (PPPoE)', RFC(2516)],
+    ['Fortinet Admin Guide 7.6.6 – Encapsulate ESP packets within TCP headers', FDOC + '7.6.6/administration-guide/351073/encapsulate-esp-packets-within-tcp-headers'],
+    ['Fortinet Admin Guide 7.6.6 – GRE over IPsec', FDOC + '7.6.6/administration-guide/799752/gre-over-ipsec'],
+    ['Fortinet Admin Guide 7.6.6 – VXLAN over IPsec tunnel with virtual wire pair', FDOC + '7.6.6/administration-guide/821119/vxlan-over-ipsec-tunnel'],
+    ['Fortinet Admin Guide 7.6.6 – Encryption algorithms', FDOC + '7.6.6/administration-guide/238852/encryption-algorithms'],
+    ['Fortinet Admin Guide 7.6.6 – Interface MTU packet size', FDOC + '7.6.6/administration-guide/596096/interface-mtu-packet-size'],
+    ['Fortinet Admin Guide 8.0.0 – IPsec related diagnose commands', FDOC + '8.0.0/administration-guide/44240/ipsec-related-diagnose-commands'],
+    ['FortiOS 7.6.6 CLI – config vpn ipsec phase1-interface', FDOC + '7.6.6/cli-reference/305883427/config-vpn-ipsec-phase1-interface'],
+    ['FortiOS 7.6.3 CLI – config vpn ipsec phase2-interface', FDOC + '7.6.3/cli-reference/252893715/config-vpn-ipsec-phase2-interface'],
+    ['FortiOS 7.6.6 CLI – config system interface', FDOC + '7.6.6/cli-reference/317104469/config-system-interface'],
+    ['FortiOS 7.6.6 CLI – config firewall policy', FDOC + '7.6.6/cli-reference/333889629/config-firewall-policy'],
+    ['FortiOS 7.6.6 CLI – config system gre-tunnel', FDOC + '7.6.6/cli-reference/414405667/config-system-gre-tunnel'],
+    ['FortiOS 7.6.6 CLI – config system vxlan', FDOC + '7.6.6/cli-reference/296583352/config-system-vxlan'],
+    ['Fortinet KB – Tunnel interface MTU value', 'https://community.fortinet.com/t5/FortiGate/Technical-Tip-Tunnel-interface-MTU-value/ta-p/198748'],
+    ['Fortinet KB – How to override MTU for IPsec VPN interfaces', 'https://community.fortinet.com/fortigate-3/technical-tip-how-to-override-mtu-for-ipsec-vpn-interfaces-on-the-fortigate-95600'],
+    ['Fortinet KB – Setting TCP MSS value', 'https://community.fortinet.com/fortigate-3/technical-tip-setting-tcp-mss-value-96548'],
+    ['Fortinet KB – Dial-up VPN IPsec over TCP best practices', 'https://community.fortinet.com/t5/FortiGate/Technical-Tip-Dial-up-VPN-IPsec-over-TCP-Best-Practices/ta-p/398245'],
+    ['Fortinet KB – Fortinet-ESP parameter remains enabled after changing transport', 'https://community.fortinet.com/t5/FortiGate/Technical-Tip-Fortinet-ESP-Parameter-remains-enabled-after/ta-p/425741'],
+    ['strongSwan – Fortinet interoperability (aes128gcm16 ↔ aes128gcm)', 'https://docs.strongswan.org/docs/latest/interop/fortinet.html'],
+    ['RFC 7383 – IKEv2 Message Fragmentation', RFC(7383)],
+    ['RFC 7296 – Internet Key Exchange Protocol Version 2 (IKEv2)', RFC(7296)],
+    ['Fortinet Admin Guide 7.6.6 – Choosing IKE version 1 and 2 (IKE fragmentation)', FDOC + '7.6.6/administration-guide/167137/choosing-ike-version-1-and-2'],
+    ['Fortinet Admin Guide 8.0.0 – Configuration scripts (# comments)', FDOC + '8.0.0/administration-guide/780930/configuration-scripts'],
+    ['Fortinet KB – IP packet fragmentation over IPsec tunnel interface explained', 'https://community.fortinet.com/t5/FortiGate/Technical-Tip-IP-Packet-fragmentation-over-IPSec-tunnel/ta-p/265295'],
+    ['Fortinet KB – Troubleshooting IPsec VPN tunnel errors with large size packets', 'https://community.fortinet.com/t5/FortiGate/Technical-Tip-Troubleshooting-IPsec-VPN-tunnel-errors-with-large/ta-p/194539'],
+    ['Fortinet KB – Behavior of TCP-MSS setting under system interface', 'https://community.fortinet.com/t5/FortiGate/Technical-Tip-Behavior-of-TCP-MSS-setting-under-system-interface/ta-p/221376'],
+    ['Fortinet Admin Guide 7.6.6 – Dialup IPsec VPN using custom TCP port', FDOC + '7.6.6/administration-guide/567401/dialup-ipsec-vpn-using-custom-tcp-port'],
+    ['FortiOS 7.6.6 CLI – config system settings (ike-tcp-port)', FDOC + '7.6.6/cli-reference/130421147/config-system-settings'],
+    ['FortiClient 8.0.0 XML reference – IPsec VPN (mtu_size)', 'https://docs.fortinet.com/document/forticlient/8.0.0/xml-reference-guide/739387/ipsec-vpn'],
+    ['FortiClient 8.0.0 XML reference – IKE settings', 'https://docs.fortinet.com/document/forticlient/8.0.0/xml-reference-guide/96295/ike-settings'],
+    ['FortiClient 8.0.0 XML reference – IPsec settings', 'https://docs.fortinet.com/document/forticlient/8.0.0/xml-reference-guide/358032/ipsec-settings'],
+    ['FortiClient 8.0.0 Admin Guide – Configuring an IPsec VPN connection', 'https://docs.fortinet.com/document/forticlient/8.0.0/administration-guide/494391/configuring-an-ipsec-vpn-connection']
+  ];
+  const VEC_SRC_A = [SOURCES[19][0].replace('Fortinet ', ''), SOURCES[19][1]];
+  const VEC_SRC_B = [SOURCES[23][0].replace('Fortinet ', ''), SOURCES[23][1]];
+  const VECTORS = [
+    { c: 'aes128', i: 'sha1', tr: 'esp', dst: '1500*', fgt: 1438, src: VEC_SRC_A },
+    { c: 'aes256', i: 'sha256', tr: 'udp', dst: '1500', fgt: 1422, src: VEC_SRC_B },
+    { c: 'aes128', i: 'sha1', tr: 'udp', dst: '1500', fgt: 1422, src: VEC_SRC_B }
+  ];
+
+  /* ----- phase 1 helpers ----- */
+  function fillP1Prf() {
+    const enc = $('p1enc').value, sel = $('p1prf');
+    const aead = P1_AEAD.indexOf(enc) >= 0;
+    const list = aead ? P1_PRF : P1_INTEG;
+    const cur = sel.value;
+    const want = list.indexOf(cur) >= 0 ? cur : list[0];
+    if (sel.dataset.kind !== (aead ? 'prf' : 'integ')) {
+      sel.innerHTML = list.map(v => '<option value="' + v + '">' + v + '</option>').join('');
+      sel.dataset.kind = aead ? 'prf' : 'integ';
+    }
+    sel.value = want;
+    sel.disabled = enc === 'default';
+  }
+  const p1Proposal = cfg => (cfg.p1enc === 'default' ? P1_DEFAULT : cfg.p1enc + '-' + cfg.p1prf);
+
+  /* ----- tunnel type ----- */
+  function applyKind(kind) {
+    const ra = kind === 'ra';
+    const each = (list, fn) => Array.prototype.forEach.call(list, fn);
+    const setOpts = (id, allowed, fallback) => {
+      const sel = $(id);
+      each(sel.options, o => { const ok = !ra || allowed.indexOf(o.value) >= 0; o.hidden = !ok; o.disabled = !ok; });
+      each(sel.querySelectorAll('optgroup'), g => { g.hidden = ra && !Array.prototype.some.call(g.children, o => !o.hidden); });
+      if (ra && allowed.indexOf(sel.value) < 0) sel.value = fallback;
+    };
+    setOpts('cipher', RA_P2, 'aes256');
+    setOpts('integ', RA_INTEG, 'sha256');
+    setOpts('p1enc', RA_P1, 'aes256');
+    if (ra) $('o-none').checked = true;
+    fillP1Prf();
+  }
+  function raInfo(cfg, m) {
+    const ok = Number.isFinite(cfg.mtuSize) && cfg.mtuSize >= 576 && cfg.mtuSize <= 1500;
+    if (!ok || !m) return { ok: ok, mss: null, over: null, eff: null };
+    const eff = Math.min(cfg.mtuSize, m.U);
+    return { ok: ok, mss: eff - 40, over: cfg.mtuSize - m.U, eff: eff };
+  }
+
+  /* ----- state ----- */
+  function readCfg() {
+    const wan = parseInt($('wanMtu').value, 10);
+    const extraRaw = parseInt($('extra').value, 10);
+    const extra = Number.isFinite(extraRaw) ? extraRaw : 0;
+    const q = n => document.querySelector('input[name="' + n + '"]:checked').value;
+    const kind = q('kind'), ra = kind === 'ra';
+    const cli = parseInt($('cliMtu').value, 10);
+    const wanOk = Number.isFinite(wan) && wan >= 68 && wan <= 9216;
+    const cliOk = !ra || (Number.isFinite(cli) && cli >= 68 && cli <= 9216);
+    const baseMtu = ra && cliOk && wanOk ? Math.min(wan, cli) : wan;
+    const valid = wanOk && cliOk && extra >= 0 && extra < baseMtu;
+    return {
+      kind, cli, cliOk, wanOk,
+      mtuSize: parseInt($('mtuSize').value, 10),
+      tcpPort: clampInt($('tcpPort').value, 1, 65535),
+      valid, wan, extra, pathMtu: valid ? baseMtu - extra : 0,
+      transport: q('transport'), ipfrag: q('ipfrag'),
+      tcpOpt: Math.ceil(clampInt($('tcpOpt').value, 0, 40) / 4) * 4,
+      cipher: $('cipher').value, integ: $('integ').value,
+      overlay: ra ? 'none' : q('overlay'), mode: q('mode'),
+      greCsum: $('greCsum').checked, greKey: $('greKey').checked, greSeq: $('greSeq').checked,
+      vxlanTag: $('vxTag').checked,
+      p1enc: $('p1enc').value, p1prf: $('p1prf').value,
+      dh: Array.prototype.slice.call(document.querySelectorAll('#dhgrp input:checked')).map(i => i.value),
+      ikeFrag: $('ikeFrag').checked,
+      fragMtu: parseInt($('fragMtu').value, 10)
+    };
+  }
+
+  /* ----- render ----- */
+  let lastKey = '';
+  function render(force) {
+    const cfg = readCfg();
+    const key = JSON.stringify(cfg);
+    if (!force && key === lastKey) return;   // e.g. a blur-triggered change event with nothing new
+    lastKey = key;
+    const c = CIPHERS[cfg.cipher];
+    const ra = cfg.kind === 'ra';
+    ['cliMtuWrap', 'hintRA', 'fcGroup', 'xmlBlock', 'raP1Flag', 'raP2Flag', 'raDhFlag'].forEach(id => { $(id).hidden = !ra; });
+    $('ovlGroup').hidden = ra;
+    $('wanMtuLbl').textContent = ra ? t('wanMtuRA') : t('wanMtu');
+    $('cliMtu').setAttribute('aria-invalid', String(!cfg.cliOk));
+    $('mtuSize').setAttribute('aria-invalid', String(ra && !raInfo(cfg, null).ok));
+    $('tcpOpts').hidden = cfg.transport !== 'tcp';
+    $('greOpts').hidden = cfg.overlay !== 'gre';
+    $('vxOpts').hidden = cfg.overlay !== 'vxlan';
+    $('integ').disabled = c.aead;
+    $('wanMtu').setAttribute('aria-invalid', String(!cfg.wanOk));
+    $('extra').setAttribute('aria-invalid', String(!cfg.valid && cfg.wanOk && cfg.cliOk));
+    $('propName').textContent = proposalName(cfg.cipher, cfg.integ);
+    $('p1Name').textContent = p1Proposal(cfg);
+    $('fragMtuWrap').hidden = !cfg.ikeFrag;
+    const fragOk = Number.isFinite(cfg.fragMtu) && cfg.fragMtu >= 500 && cfg.fragMtu <= 16000;
+    $('fragMtu').setAttribute('aria-invalid', String(cfg.ikeFrag && !fragOk));
+    $('dhHint').textContent = cfg.dh.length ? t('hintDh') : t('dhNone');
+    $('dhHint').className = cfg.dh.length ? 'hint' : 'flag bad';
+    const validProp = isValidProposal(cfg.cipher, cfg.integ);
+    const m = cfg.valid && validProp ? maxUser(cfg) : null;
+    renderParams(cfg, validProp);
+    renderSummary(cfg, m, validProp);
+    renderAnatomy(cfg, m);
+    renderUsage(cfg, m);
+    renderLayers(cfg, m);
+    renderCheck(cfg, validProp);
+    renderPchart(cfg);
+    renderMatrix(cfg);
+    renderIke(cfg, fragOk);
+    renderCli(cfg, m, validProp);
+    if (ra) renderXml(cfg, m);
+  }
+
+  function renderIke(cfg, fragOk) {
+    const out = $('ikeOut');
+    if (!cfg.valid) { out.innerHTML = '<p class="flag bad">' + t('errMtu') + '</p>'; return; }
+    const P = cfg.pathMtu;
+    const kv = (k, val) => '<div><dt>' + k + '</dt><dd>' + val + '</dd></div>';
+    let h = '', limit;
+    if (cfg.transport === 'tcp') {
+      h += '<dl class="kv ike-kv">' + kv(t('ikeMax') + ' · ' + t('ikeTcp'), t('ikeTcpVal')) + '</dl>';
+      h += '<div class="stack"><span>IPv4 20</span><span>TCP ' + (20 + cfg.tcpOpt) + '</span><span>Length 2</span><span>non-ESP marker 4</span><span>IKE …</span></div>';
+      h += '<span class="verdict info">' + t('ikeTcpInfo') + '</span>';
+      out.innerHTML = h;
+      return;
+    }
+    const m500 = P - 20 - 8, m4500 = P - 20 - 8 - 4;
+    if (cfg.transport === 'udp') {
+      h += '<dl class="kv ike-kv">' + kv(t('ikeMax') + ' · UDP 500', m500 + ' B') + kv(t('ikeMax') + ' · UDP 4500', m4500 + ' B') + '</dl>';
+      h += '<div class="stack"><span>' + P + '</span>−<span>IPv4 20</span>−<span>UDP 8</span>−<span>non-ESP marker 4</span>=<b>' + m4500 + ' B</b><span>(UDP 4500)</span></div>';
+      limit = m4500;
+    } else {
+      h += '<dl class="kv ike-kv">' + kv(t('ikeMax') + ' · UDP 500', m500 + ' B') + '</dl>';
+      h += '<div class="stack"><span>' + P + '</span>−<span>IPv4 20</span>−<span>UDP 8</span>=<b>' + m500 + ' B</b></div>';
+      limit = m500;
+    }
+    if (!cfg.ikeFrag) {
+      h += '<span class="verdict warn">' + t('ikeFragOff', { n: limit }) + '</span><p class="hint" style="margin-top:8px">' + t('ikeFragOffNote') + '</p>';
+    } else if (!fragOk) {
+      h += '<p class="flag bad" style="margin-top:10px">' + t('fragErr') + '</p>';
+    } else if (cfg.fragMtu <= limit) {
+      h += '<span class="verdict ok">' + t('ikeFragOk', { v: cfg.fragMtu, n: limit }) + '</span>';
+    } else {
+      h += '<span class="verdict warn">' + t('ikeFragWarn', { v: cfg.fragMtu, n: limit }) + '</span><p class="hint" style="margin-top:8px">' + t('ikeFragWarnNote', { n: limit }) + '</p>';
+    }
+    out.innerHTML = h;
+  }
+
+  function renderParams(cfg, validProp) {
+    const c = CIPHERS[cfg.cipher];
+    const icv = c.aead ? c.icv : INTEG[cfg.integ].icv;
+    $('params').innerHTML =
+      '<div><dt>' + t('pAlign') + '</dt><dd>' + Math.max(c.block, 4) + ' B</dd></div>' +
+      '<div><dt>IV</dt><dd>' + c.iv + ' B</dd></div>' +
+      '<div><dt>ICV</dt><dd>' + icv + ' B</dd></div>';
+    let f = '';
+    if (c.aead) f += '<p class="hint">' + t('aeadInteg') + '</p>';
+    if (c.unverified) f += '<p class="flag">' + t('ariaFlag') + '</p>';
+    if (!validProp) f += '<p class="flag bad">' + t('nullNull') + '</p>';
+    $('propFlags').innerHTML = f;
+  }
+
+  function tile(cls, k, v, s) {
+    const val = typeof v === 'number' ? v + '<small>B</small>' : v;
+    return '<div class="tile ' + cls + '"><div class="tv"><span class="v">' + val + '</span><span class="k">' + k + '</span></div><span class="s">' + s + '</span></div>';
+  }
+
+  function renderSummary(cfg, m, validProp) {
+    const alerts = [];
+    if (!cfg.valid) alerts.push(['bad', t('errMtu')]);
+    else if (!validProp) alerts.push(['bad', t('nullNull')]);
+    else if (!m) alerts.push(['bad', t('errNoFit', { n: cfg.pathMtu, o: buildPacket(cfg, 0).fixed })]);
+    if (m && m.U < 68) alerts.push(['bad', t('warnMin', { n: m.U })]);
+    if (m && m.r.mode === 'tunnel' && m.r.payload < 1420) alerts.push(['warn', t('warnSa', { n: m.r.payload })]);
+    const ra = cfg.kind === 'ra';
+    const ri = ra ? raInfo(cfg, m) : null;
+    if (ra && !ri.ok) alerts.push(['bad', t('mtuSizeErr')]);
+    if (ra && m && ri.ok && ri.over > 0) alerts.push(['bad', t('warnMtuSize', { m: cfg.mtuSize, u: m.U, p: cfg.pathMtu })]);
+    if (m && ra) {
+      const U = m.U, r = m.r;
+      $('tiles').innerHTML =
+        tile('primary', t('tMtu'), U, t('tMtuSubRA', { p: cfg.pathMtu })) +
+        tile(ri.ok && ri.over > 0 ? 'bad' : '', t('tMtuSize'), ri.ok ? cfg.mtuSize : '—',
+          ri.ok ? (ri.over > 0 ? t('tMtuSizeBad', { n: ri.over }) : t('tMtuSizeOk', { n: -ri.over })) : t('mtuSizeErr')) +
+        tile('', t('tMssRA'), ri.mss !== null && ri.mss > 0 ? ri.mss : '—', ri.ok && ri.over > 0 ? t('tMssRASubCap') : t('tMssRASub')) +
+        tile('', t('tSa'), r.payload, t('tSaSub'));
+      const d = (ri.eff !== null ? ri.eff : U) - 28;
+      $('ping').innerHTML = d >= 0
+        ? '<span>' + t('pingLabel') + '</span><code>ping -f -l ' + d + ' &lt;IP&gt;</code><span>Windows</span><code>ping -M do -s ' + d + ' &lt;IP&gt;</code><span>Linux</span>'
+        : '';
+    } else if (m) {
+      const U = m.U, r = m.r;
+      const mss = U - 40;
+      $('tiles').innerHTML =
+        tile('primary', t('tMtu'), U, t('tMtuSub')) +
+        tile('', t('tMss'), mss > 0 ? mss : '—', t('tMssSub')) +
+        tile('', t('tOver'), r.total - U, t('tOverSub', { f: r.fixed, p: r.pad })) +
+        tile('', t('tSa'), r.payload, r.mode === 'tunnel' ? t('tSaSub') : t('tSaSubT'));
+      const d = U - 28;
+      $('ping').innerHTML = d >= 0
+        ? '<span>' + t('pingLabel') + '</span><code>ping -f -l ' + d + ' &lt;IP&gt;</code><span>Windows</span><code>ping -M do -s ' + d + ' &lt;IP&gt;</code><span>Linux</span>'
+        : '';
+    } else {
+      $('tiles').innerHTML = tile('primary', t('tMtu'), '—', t('tMtuSub')) + tile('', t('tMss'), '—', t('tMssSub')) +
+        tile('', t('tOver'), '—', '') + tile('', t('tSa'), '—', '');
+      $('ping').innerHTML = '';
+    }
+    $('alerts').innerHTML = alerts.map(a => '<p class="flag ' + (a[0] === 'bad' ? 'bad' : '') + '">' + a[1] + '</p>').join('');
+  }
+
+  function segLabel(cfg, s, U) {
+    let l = t('seg_' + s.k);
+    if (s.k === 'tcp' && cfg.tcpOpt) l += ' (20 + ' + cfg.tcpOpt + ' B opt.)';
+    if (s.k === 'user' && U >= 40) l += ' — ' + t('seg_userD', { m: U - 40 });
+    return l;
+  }
+
+  function packetView(cfg, m) {
+    const raMode = cfg.kind === 'ra';
+    const ri = raMode ? raInfo(cfg, m) : null;
+    const U = raMode && ri.ok ? cfg.mtuSize : m.U;
+    const r = U === m.U ? m.r : buildPacket(cfg, U);
+    return { U: U, r: r, raMode: raMode, ri: ri };
+  }
+
+  function renderUsage(cfg, m) {
+    if (!m) { $('donut').innerHTML = ''; $('dlegend').innerHTML = ''; $('useBig').textContent = '—'; $('useSub').textContent = ''; return; }
+    const pv = packetView(cfg, m), U = pv.U, r = pv.r, P = cfg.pathMtu;
+    const over = r.total - U, free = P - r.total;
+    const parts = [[U, 'var(--lime)', t('lgData')], [over, 'var(--violet)', t('lgOver')]];
+    if (free > 0) parts.push([free, 'var(--neutral)', t('lgFree')]);
+    const whole = Math.max(P, r.total);
+    const R = 58, C = 2 * Math.PI * R, gap = 2;
+    let off = 0, arcs = '';
+    parts.forEach(p => {
+      const len = C * p[0] / whole;
+      const draw = Math.max(len - gap, 0.5);
+      arcs += '<circle cx="75" cy="75" r="' + R + '" fill="none" stroke="' + p[1] + '" stroke-width="16" stroke-dasharray="' + draw + ' ' + (C - draw) +
+        '" stroke-dashoffset="' + (-off) + '" transform="rotate(-90 75 75)" data-tip="' + esc(p[2] + ' · ' + p[0] + ' B') + '"/>';
+      off += len;
+    });
+    const pct = Math.round(r.total / P * 100);
+    const over100 = r.total > P;
+    $('donut').innerHTML = '<svg width="150" height="150" viewBox="0 0 150 150" role="img" aria-label="' + esc(t('useTitle') + ': ' + pct + ' %') + '">' + arcs +
+      '<text x="75" y="75" text-anchor="middle" font-family="Sora, sans-serif" font-weight="700" font-size="28" fill="' + (over100 ? 'var(--bad)' : 'var(--white)') + '">' + pct + '%</text>' +
+      '<text x="75" y="95" text-anchor="middle" font-family="Sora, sans-serif" font-weight="300" font-size="11" fill="var(--muted)">' + esc(t('useCenter')) + '</text></svg>';
+    const row = (c, k, v, cls) => '<div><i style="--c:' + c + '"></i><dt' + (cls ? ' style="color:var(--bad)"' : '') + '>' + k + '</dt><dd>' + v + ' B</dd></div>';
+    $('dlegend').innerHTML = row('var(--lime)', t('lgData'), U) + row('var(--violet)', t('lgOver'), over) +
+      (free >= 0 ? row('var(--neutral)', t('lgFree'), free) : row('var(--bad)', t('lgOverflow'), -free, true));
+    $('useBig').textContent = P;
+    $('useSub').textContent = t('useSub', { u: U, p: P });
+  }
+
+  function renderLayers(cfg, m) {
+    if (!m) { $('lbars').innerHTML = ''; $('layBig').textContent = '—'; return; }
+    const r = packetView(cfg, m).r;
+    const segs = r.segs.filter(x => x.k !== 'user');
+    const tot = segs.reduce((a, x) => a + x.b, 0);
+    $('layBig').textContent = tot;
+    $('lbars').innerHTML = segs.map(x =>
+      '<div class="lbar" data-tip="' + esc(t('seg_' + x.k) + ' · ' + x.b + ' B') + '"><div class="lb"><span><i style="--c:var(' + COLOR[x.k] + ')"></i>' + esc(LY[x.k]) + '</span><b>' + x.b + ' / ' + tot + ' B</b></div>' +
+      '<div class="tr"><div class="fl" style="width:' + (x.b / tot * 100).toFixed(1) + '%"></div></div></div>').join('');
+  }
+
+  function renderPchart(cfg) {
+    const box = $('pchart');
+    if (!cfg.valid) { box.innerHTML = ''; $('pchartSub').textContent = ''; return; }
+    const ra = cfg.kind === 'ra';
+    const curName = proposalName(cfg.cipher, cfg.integ);
+    const list = (ra ? PCH_RA : PCH_S2S).slice();
+    if (!list.some(x => proposalName(x[0], x[1]) === curName) && isValidProposal(cfg.cipher, cfg.integ))
+      list.push([cfg.cipher, CIPHERS[cfg.cipher].aead ? 'null' : cfg.integ]);
+    const data = list.map(x => {
+      const mm = maxUser(Object.assign({}, cfg, { cipher: x[0], integ: x[1] }));
+      return { c: x[0], i: x[1], name: proposalName(x[0], x[1]), mtu: mm ? mm.U : null, over: mm ? cfg.pathMtu - mm.U : null };
+    }).filter(d => d.mtu !== null);
+    $('pchartSub').textContent = t('pchartSub', { n: cfg.pathMtu });
+    if (!data.length) { box.innerHTML = ''; return; }
+    const W = 880, H = 270, pl = 46, pr = 10, pt = 30, pb = 44;
+    const maxV = Math.max.apply(null, data.map(d => d.over));
+    const step = maxV > 200 ? 100 : maxV > 100 ? 50 : 25;
+    const top = Math.ceil((maxV + 1) / step) * step;
+    const y = v => pt + (1 - v / top) * (H - pt - pb);
+    let g = '';
+    for (let v = 0; v <= top; v += step) {
+      g += '<line x1="' + pl + '" x2="' + (W - pr) + '" y1="' + y(v) + '" y2="' + y(v) + '" stroke="var(--line)" stroke-width="1"/>' +
+        '<text x="' + (pl - 8) + '" y="' + (y(v) + 3.5) + '" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="10.5" fill="var(--muted)">' + v + '</text>';
+    }
+    g += '<text x="' + (pl - 8) + '" y="' + (pt - 16) + '" text-anchor="end" font-family="Sora, sans-serif" font-size="10" fill="var(--muted)">B</text>';
+    const band = (W - pl - pr) / data.length, bw = Math.min(34, band * 0.55);
+    data.forEach((d, idx) => {
+      const cx = pl + band * idx + band / 2, x = cx - bw / 2, y0 = y(0), y1 = y(d.over), h = y0 - y1, rr = Math.min(4, h);
+      const cur = d.name === curName;
+      const path = 'M' + x + ' ' + y0 + ' V' + (y1 + rr) + ' Q' + x + ' ' + y1 + ' ' + (x + rr) + ' ' + y1 + ' H' + (x + bw - rr) +
+        ' Q' + (x + bw) + ' ' + y1 + ' ' + (x + bw) + ' ' + (y1 + rr) + ' V' + y0 + ' Z';
+      const tip = d.name + ' · ' + t('tipMtu') + ' ' + d.mtu + ' B · ' + t('tipOver') + ' ' + d.over + ' B';
+      g += '<g class="bar" tabindex="0" role="button" aria-pressed="' + cur + '" aria-label="' + esc(tip) + '" data-tip="' + esc(tip) + '" data-c="' + d.c + '" data-i="' + d.i + '">' +
+        '<rect class="hit" x="' + (cx - band / 2 + 2) + '" y="' + pt + '" width="' + (band - 4) + '" height="' + (H - pt - pb + 30) + '" fill="transparent"/>' +
+        '<path class="m" d="' + path + '" fill="' + (cur ? 'var(--lime)' : 'var(--neutral)') + '"/>' +
+        '<text x="' + cx + '" y="' + (y1 - 8) + '" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="12" font-weight="' + (cur ? 700 : 600) + '" fill="var(--white)">' + d.mtu + '</text>' +
+        '<text x="' + cx + '" y="' + (H - pb + 18) + '" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10.5" fill="' + (cur ? 'var(--white)' : 'var(--muted)') + '"' + (cur ? ' font-weight="700"' : '') + '>' + esc(d.name) + '</text></g>';
+    });
+    box.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="group" aria-label="' + esc(t('matrix')) + '">' + g + '</svg>';
+  }
+
+  function renderAnatomy(cfg, m) {
+    const strip = $('strip'), table = $('breakdown');
+    if (!m) {
+      strip.innerHTML = ''; table.innerHTML = ''; $('legend').innerHTML = '';
+      $('anatSub').textContent = '';
+      return;
+    }
+    const pv = packetView(cfg, m), raMode = pv.raMode, ri = pv.ri, U = pv.U, r = pv.r;
+    const segs = r.segs;
+    const encOn = cfg.cipher !== 'null';
+    $('anatSub').textContent = t(raMode && ri.ok ? 'anatSubRA' : 'anatSub', { u: U });
+    strip.style.gridTemplateColumns = segs.map(s => s.k === 'user'
+      ? 'minmax(110px, 64fr)'
+      : 'minmax(' + (s.k === 'trl' || s.k === 'dot1q' || s.k === 'vxlan' ? 50 : 40) + 'px, ' + Math.max(s.b, 3) + 'fr)').join(' ');
+    let h = segs.map((s, i) => {
+      const style = 'grid-column:' + (i + 1) + ';grid-row:1;' + (s.k === 'user' ? '' : '--c:var(' + COLOR[s.k] + ');--si:' + (SEG_INK[s.k] || '#FBFDFC'));
+      return '<div class="sg' + (s.k === 'user' ? ' user' : '') + '" style="' + style + '" title="' + esc(segLabel(cfg, s, U)) + ' · ' + s.b + ' B">' +
+        '<b>' + SHORT[s.k] + '</b><span>' + s.b + '</span></div>';
+    }).join('');
+    const idx = k => segs.findIndex(s => s.k === k);
+    const br = (a, b, row, label, color) => '<div class="br" style="grid-column:' + (a + 1) + ' / ' + (b + 2) + ';grid-row:' + row + ';--bc:var(' + color + ')">' + label + '</div>';
+    const iEsp = idx('espHdr'), iTrl = idx('trl'), iLast = segs.length - 1;
+    const encapIdx = segs.map((s, i) => (s.grp === 'encap' ? i : -1)).filter(i => i >= 0);
+    h += br(iEsp, iLast, 2, t('brEsp'), '--seg-esp');
+    if (encapIdx.length) h += br(encapIdx[0], encapIdx[encapIdx.length - 1], 2, cfg.transport === 'tcp' ? t('brTcp') : t('brUdp'), '--seg-l4');
+    if (encOn) h += br(segs.findIndex(s => s.enc), iTrl, 3, t('brEnc'), '--seg-trl');
+    if (r.icv) h += br(iEsp, iTrl, encOn ? 4 : 3, t('brIcv'), '--seg-icv');
+    strip.innerHTML = h;
+
+    const leg = [['--seg-ip', 'IPv4']];  // legend of the strip
+    if (encapIdx.length) leg.push(['--seg-l4', cfg.transport === 'tcp' ? 'TCP + Length' : 'UDP']);
+    leg.push(['--seg-esp', 'ESP'], ['--seg-iv', 'IV']);
+    if (cfg.overlay !== 'none') leg.push(['--seg-ovl', cfg.overlay === 'gre' ? 'GRE' : 'VXLAN']);
+    leg.push(['--seg-pad', 'Padding'], ['--seg-trl', 'Pad Length + Next Header']);
+    if (r.icv) leg.push(['--seg-icv', 'ICV']);
+    $('legend').innerHTML = leg.map(l => '<span><i style="--c:var(' + l[0] + ')"></i>' + l[1] + '</span>').join('');
+
+    const c = CIPHERS[cfg.cipher];
+    let off = 0;
+    const rows = segs.map(s => {
+      let ref = REF[s.k] || '';
+      if (s.k === 'iv' || s.k === 'icv') ref = s.ref;
+      const sw = s.k === 'user' ? '<span class="sw user"></span>' : '<span class="sw" style="--c:var(' + COLOR[s.k] + ')"></span>';
+      const row = '<tr><td>' + sw + esc(segLabel(cfg, s, U)) + '</td><td class="n">' + off + '</td><td class="n">' + s.b +
+        '</td><td>' + (s.enc && encOn ? t('yes') : '—') + '</td><td class="ref">' + esc(ref) + '</td></tr>';
+      off += s.b;
+      return row;
+    }).join('');
+    table.innerHTML =
+      '<thead><tr><th scope="col">' + t('colField') + '</th><th scope="col" class="n">' + t('colOffset') + '</th><th scope="col" class="n">' +
+      t('colBytes') + '</th><th scope="col">' + t('colEnc') + '</th><th scope="col">' + t('colRef') + '</th></tr></thead>' +
+      '<tbody>' + rows + '</tbody>' +
+      '<tfoot><tr><td>' + t('rowTotal') + '</td><td></td><td class="n">' + r.total + '</td><td></td><td></td></tr>' +
+      '<tr><td>' + t('rowPath') + (cfg.kind === 'ra' ? ' (min ' + cfg.wan + ' / ' + cfg.cli + (cfg.extra ? ' − ' + cfg.extra : '') + ')' : (cfg.extra ? ' (' + cfg.wan + ' − ' + cfg.extra + ')' : '')) + '</td><td></td><td class="n">' + cfg.pathMtu + '</td><td></td><td></td></tr>' +
+      '<tr><td>' + t('rowSpare') + '</td><td></td><td class="n' + (cfg.pathMtu - r.total < 0 ? ' neg' : '') + '">' + (cfg.pathMtu - r.total) + '</td><td></td><td class="ref">' +
+      (c.block > 4 ? 'block ' + c.block + ' B' : 'align 4 B') + '</td></tr></tfoot>';
+  }
+
+  function renderCheck(cfg, validProp) {
+    const v = parseInt($('pkt').value, 10);
+    const ok = Number.isFinite(v) && v >= 20 && v <= 65535;
+    $('pkt').setAttribute('aria-invalid', String(!ok));
+    const out = $('checkOut');
+    if (!cfg.valid || !validProp) { out.innerHTML = ''; return; }
+    if (!ok) { out.innerHTML = '<p class="flag bad">' + t('pktErr') + '</p>'; return; }
+    const r = buildPacket(cfg, v);
+    const diff = cfg.pathMtu - r.total;
+    const kv = (k, val) => '<div><dt>' + k + '</dt><dd>' + val + ' B</dd></div>';
+    out.innerHTML = '<dl class="kv">' + kv(t('cPad'), r.pad) + kv(t('cEsp'), r.espLen) + kv(t('cOuter'), r.total) + kv(t('cPath'), cfg.pathMtu) + '</dl>' +
+      (diff >= 0
+        ? '<span class="verdict ok">' + t('fits', { n: diff }) + '</span>'
+        : '<span class="verdict no">' + t('exceeds', { n: -diff }) + '</span><p class="hint" style="margin-top:8px">' + t(cfg.ipfrag === 'pre' ? 'exceedsPre' : 'exceedsNote') + '</p>');
+  }
+
+  function renderMatrix(cfg) {
+    const ovl = cfg.overlay === 'none' ? t('none') : (cfg.overlay === 'gre' ? 'GRE (' + cfg.mode + ')' : 'VXLAN');
+    const raM = cfg.kind === 'ra';
+    const cols = raM ? INTEG_ORDER.filter(i => RA_INTEG.indexOf(i) >= 0) : INTEG_ORDER;
+    const fams = raM ? FAMILIES.filter(f => RA_FAMS.indexOf(f.fam) >= 0) : FAMILIES;
+    $('matrixSub').textContent = !cfg.valid ? t('errMtu')
+      : raM ? t('matrixSubRA', { n: cfg.pathMtu, t: TR_LABEL[cfg.transport] })
+      : t('matrixSub', { n: cfg.pathMtu, t: TR_LABEL[cfg.transport], o: ovl });
+    const curFam = CIPHERS[cfg.cipher].fam;
+    const res = (cipher, integ) => (cfg.valid ? maxUser(Object.assign({}, cfg, { cipher: cipher, integ: integ })) : null);
+    const mss = m => (m && m.U > 40 ? m.U - 40 : '—');
+    let h = '<thead><tr><th scope="col">' + t('mCipher') + '</th>' + cols.map(i => '<th scope="col" class="n">' + i + '</th>').join('') + '</tr></thead><tbody>';
+    fams.forEach(f => {
+      const rep = CIPHERS[f.rep];
+      h += '<tr><th scope="row">' + FAM_LABEL[f.fam] + '<small>' + f.names + '</small></th>';
+      if (rep.aead) {
+        const m = res(f.rep, 'null');
+        h += '<td colspan="' + cols.length + '"><button type="button" class="aead" data-fam="' + f.fam + '" aria-pressed="' + (curFam === f.fam) + '">' +
+          '<span>' + t('mAead') + '</span><b>' + (m ? m.U : '—') + ' <span>MSS ' + mss(m) + '</span></b></button></td>';
+      } else {
+        cols.forEach(i => {
+          if (!isValidProposal(f.rep, i)) { h += '<td class="na">' + t('mInvalid') + '</td>'; return; }
+          const m = res(f.rep, i);
+          const pressed = curFam === f.fam && cfg.integ === i;
+          h += '<td><button type="button" data-fam="' + f.fam + '" data-integ="' + i + '" aria-pressed="' + pressed + '" title="' + proposalName(f.rep, i) + '">' +
+            '<b>' + (m ? m.U : '—') + '</b><span>MSS ' + mss(m) + '</span></button></td>';
+        });
+      }
+      h += '</tr>';
+    });
+    $('matrix').innerHTML = h + '</tbody>';
+  }
+
+  function mtuPlan(cfg, m) {
+    const mode = cfg.overlay === 'gre' ? cfg.mode : 'tunnel';
+    const sa = m ? m.r.payload : null;
+    const reason = cfg.ipfrag === 'pre' ? 'pre' : (sa !== null && sa < 1420 ? 'low' : 'none');
+    return { mode, sa, reason, emit: mode === 'tunnel' && reason !== 'none', value: sa !== null ? sa : '<mtu>' };
+  }
+
+  function p1Bits(cfg, L) {
+    L.push('        set proposal ' + p1Proposal(cfg));
+    L.push('        set dhgrp ' + (cfg.dh.length ? cfg.dh.join(' ') : '<dh-group>'));
+    L.push('        set fragmentation ' + (cfg.ikeFrag ? 'enable' : 'disable'));
+    if (cfg.ikeFrag) L.push('        set fragmentation-mtu ' + (Number.isFinite(cfg.fragMtu) && cfg.fragMtu >= 500 && cfg.fragMtu <= 16000 ? cfg.fragMtu : '<500-16000>'));
+    if (cfg.transport === 'esp') L.push('        set nattraversal disable');
+    if (cfg.transport === 'udp') L.push('        set nattraversal enable');
+    if (cfg.transport === 'tcp') L.push('        set transport tcp', '        set fortinet-esp disable');
+    if (cfg.ipfrag === 'pre') L.push('        set ip-fragmentation pre-encapsulation');
+  }
+
+  function cliLinesRA(cfg, m) {
+    const plan = mtuPlan(cfg, m);
+    const ri = raInfo(cfg, m);
+    const MSS = ri.mss !== null && ri.mss > 0 ? ri.mss : '<mss>';
+    const L = [t('cliAuthComment')];
+    L.push('config vpn ipsec phase1-interface', '    edit "<tunnel>"', '        set type dynamic', '        set interface "<wan>"',
+      '        set ike-version 2', '        set peertype any', '        set net-device disable', '        set mode-cfg enable',
+      '        set ipv4-start-ip <pool-start-ip>', '        set ipv4-end-ip <pool-end-ip>');
+    p1Bits(cfg, L);
+    L.push('    next', 'end');
+    L.push('config vpn ipsec phase2-interface', '    edit "<tunnel>"', '        set phase1name "<tunnel>"', '        set proposal ' + proposalName(cfg.cipher, cfg.integ), '    next', 'end');
+    if (cfg.transport === 'tcp') L.push('config system settings', '    set ike-tcp-port ' + cfg.tcpPort, 'end');
+    L.push('config system interface', '    edit "<tunnel>"');
+    if (plan.emit) L.push('        set mtu-override enable', '        set mtu ' + plan.value);
+    L.push('        set tcp-mss ' + MSS, '    next', 'end');
+    L.push(t('cliComment'));
+    L.push('config firewall policy', '    edit <id>', '        set srcintf "<tunnel>"', '        set dstintf "<lan>"',
+      '        set tcp-mss-sender ' + MSS, '        set tcp-mss-receiver ' + MSS, '    next', 'end');
+    return L;
+  }
+
+  function cliLines(cfg, m) {
+    const U = m ? m.U : '<mtu>';
+    const plan = mtuPlan(cfg, m);
+    const mtuLines = plan.emit ? ['        set mtu-override enable', '        set mtu ' + plan.value] : [];
+    const MSS = m && m.U > 40 ? m.U - 40 : '<mss>';
+    const gre = cfg.overlay === 'gre', vx = cfg.overlay === 'vxlan';
+    const L = [];
+    L.push('config vpn ipsec phase1-interface', '    edit "<tunnel>"', '        set interface "<wan>"', '        set ike-version 2', '        set remote-gw <remote-gw>');
+    p1Bits(cfg, L);
+    L.push('    next', 'end');
+    L.push('config vpn ipsec phase2-interface', '    edit "<tunnel>"', '        set phase1name "<tunnel>"', '        set proposal ' + proposalName(cfg.cipher, cfg.integ));
+    if (gre) L.push('        set protocol 47');
+    if (gre && cfg.mode === 'transport') L.push('        set encapsulation transport-mode');
+    L.push('    next', 'end');
+    if (cfg.transport === 'tcp') L.push('config system settings', '    set ike-tcp-port ' + cfg.tcpPort, 'end');
+    let dst = '"<tunnel>"';
+    if (cfg.overlay === 'none') {
+      L.push('config system interface', '    edit "<tunnel>"');
+      mtuLines.forEach(x => L.push(x));
+      L.push('        set tcp-mss ' + MSS, '    next', 'end');
+    } else if (gre && cfg.mode === 'tunnel') {
+      L.push('config system interface', '    edit "<tunnel>"', '        set ip <tun-local-ip> 255.255.255.255', '        set remote-ip <tun-remote-ip> 255.255.255.255');
+      mtuLines.forEach(x => L.push(x));
+      L.push('    next', 'end');
+      L.push('config system gre-tunnel', '    edit "<gre>"', '        set interface "<tunnel>"', '        set local-gw <tun-local-ip>', '        set remote-gw <tun-remote-ip>');
+      if (cfg.greCsum) L.push('        set checksum-transmission enable', '        set checksum-reception enable');
+      if (cfg.greKey) L.push('        set key-outbound <key>', '        set key-inbound <key>');
+      if (cfg.greSeq) L.push('        set sequence-number-transmission enable', '        set sequence-number-reception enable');
+      L.push('    next', 'end');
+      dst = '"<gre>"';
+    } else if (gre) {
+      dst = '"<gre>"';
+    } else if (vx) {
+      L.push('config system interface', '    edit "<tunnel>"', '        set ip <tun-local-ip> 255.255.255.255', '        set remote-ip <tun-remote-ip> <mask>');
+      mtuLines.forEach(x => L.push(x));
+      L.push('    next', 'end');
+      L.push('config system vxlan', '    edit "<vxlan>"', '        set interface "<tunnel>"', '        set vni <vni>', '        set remote-ip "<tun-remote-ip>"', '    next', 'end');
+    }
+    L.push(t('cliComment'));
+    L.push('config firewall policy', '    edit <id>');
+    if (vx) L.push('        set srcintf "<lan>" "<vxlan>"', '        set dstintf "<lan>" "<vxlan>"');
+    else L.push('        set srcintf "<lan>"', '        set dstintf ' + dst);
+    L.push('        set tcp-mss-sender ' + MSS, '        set tcp-mss-receiver ' + MSS, '    next', 'end');
+    return L;
+  }
+
+  function renderCli(cfg, m, validProp) {
+    const ra = cfg.kind === 'ra';
+    const lines = ra ? cliLinesRA(cfg, m) : cliLines(cfg, m);
+    const hl = line => (/^#/.test(line) ? '<span class="cm">' + esc(line) + '</span>' : esc(line)
+      .replace(/&lt;[^&]*?&gt;/g, s => '<span class="ph">' + s + '</span>')
+      .replace(/^(\s*)(config|edit|set|next|end)\b/, '$1<span class="kw">$2</span>'));
+    $('cli').innerHTML = lines.map(hl).join('\n');
+    $('cli').dataset.plain = lines.join('\n');
+    $('cliTag').textContent = 'FortiOS 7.6 · P1 ' + (cfg.p1enc === 'default' ? 'default' : p1Proposal(cfg)) + ' · P2 ' + proposalName(cfg.cipher, cfg.integ) + (validProp ? '' : ' ✕');
+    const n = ra ? [t('cliN_raBase'), t('cliN_p1')] : [t('cliN_p1')];
+    if (ra) n.push(cfg.transport === 'esp' ? t('cliN_raEsp') : cfg.transport === 'udp' ? t('cliN_nat') : t('cliN_raTcp'));
+    else n.push(cfg.transport === 'esp' ? t('cliN_esp') : cfg.transport === 'udp' ? t('cliN_nat') : t('cliN_tcp'));
+    const plan = mtuPlan(cfg, m);
+    const saTxt = plan.sa !== null ? plan.sa : '—';
+    if (plan.mode === 'transport') { if (plan.reason !== 'none') n.push(t('cliN_mtuT')); }
+    else n.push(t(plan.reason === 'pre' ? 'cliN_mtuPre' : plan.reason === 'low' ? 'cliN_mtuLow' : 'cliN_mtuNone', { n: saTxt }));
+    if (plan.emit && plan.reason === 'low') n.push(t('cliN_mtu'));
+    if (cfg.ipfrag === 'pre') n.push(t('cliN_np6'));
+    n.push(t('cliN_mss'));
+    if (ra) n.push(t('cliN_raMss'), t('cliN_raAuto'));
+    if (cfg.overlay === 'gre') n.push(cfg.mode === 'tunnel' ? t('cliN_gre') : t('cliN_greT'));
+    if (cfg.overlay === 'vxlan') n.push(t('cliN_vx'));
+    $('cliNotes').innerHTML = n.map(x => '<li>' + x + '</li>').join('');
+  }
+
+  function xmlLines(cfg, m) {
+    const ri = raInfo(cfg, m);
+    const I = n => '    '.repeat(n);
+    const tm = cfg.transport === 'tcp' ? 1 : 0;
+    const L = ['<forticlient_configuration>', I(1) + '<vpn>', I(2) + '<ipsecvpn>', I(3) + '<options>',
+      I(4) + '<mtu_size>' + (ri.ok ? cfg.mtuSize : 'MTU-SIZE') + '</mtu_size>', I(3) + '</options>',
+      I(3) + '<connections>', I(4) + '<connection>', I(5) + '<name>VPN-NAME</name>', I(5) + '<ike_settings>',
+      I(6) + '<version>2</version>', I(6) + '<server>REMOTE-GW</server>',
+      I(6) + '<nat_traversal>' + (cfg.transport === 'esp' ? 0 : 1) + '</nat_traversal>',
+      I(6) + '<transport_mode>' + tm + '</transport_mode>'];
+    if (tm === 1) L.push(I(6) + '<tcp_port>' + cfg.tcpPort + '</tcp_port>');
+    L.push(I(6) + '<enable_ike_fragmentation>' + (cfg.ikeFrag ? 1 : 0) + '</enable_ike_fragmentation>',
+      I(6) + '<dhgroup>' + (cfg.dh.length ? cfg.dh.join(';') : 'DH-GROUP') + '</dhgroup>');
+    if (XML_ENC[cfg.p1enc]) L.push(I(6) + '<proposals>', I(7) + '<proposal>' + XML_ENC[cfg.p1enc] + '|' + cfg.p1prf.toUpperCase() + '</proposal>', I(6) + '</proposals>');
+    else L.push(I(6) + t('xmlGcmComment'));
+    L.push(I(5) + '</ike_settings>', I(5) + '<ipsec_settings>');
+    if (CIPHERS[cfg.cipher].aead) L.push(I(6) + t('xmlGcmComment'));
+    else L.push(I(6) + '<proposals>', I(7) + '<proposal>' + XML_ENC[cfg.cipher] + '|' + cfg.integ.toUpperCase() + '</proposal>', I(6) + '</proposals>');
+    L.push(I(5) + '</ipsec_settings>', I(4) + '</connection>', I(3) + '</connections>', I(2) + '</ipsecvpn>', I(1) + '</vpn>', '</forticlient_configuration>');
+    return L;
+  }
+
+  function renderXml(cfg, m) {
+    const lines = xmlLines(cfg, m);
+    const hlx = line => {
+      const e = esc(line);
+      if (/^\s*&lt;!--/.test(e)) return '<span class="cm">' + e + '</span>';
+      return e.replace(/&lt;\/?[a-z_]+&gt;/g, x => '<span class="kw">' + x + '</span>')
+        .replace(/\b(VPN-NAME|REMOTE-GW|DH-GROUP|MTU-SIZE)\b/g, '<span class="ph">$1</span>');
+    };
+    $('xml').innerHTML = lines.map(hlx).join('\n');
+    $('xml').dataset.plain = lines.join('\n');
+    $('xmlNotes').innerHTML = ['xmlN1', 'xmlN2', 'xmlN3'].map(k => '<li>' + t(k) + '</li>').join('');
+  }
+
+  function renderStatic() {
+    $('ikeNotes').innerHTML = ['ik1', 'ik2', 'ik3', 'ik4', 'ik5'].map(k => '<li>' + t(k) + '</li>').join('');
+    $('notes').innerHTML = ['n1', 'n2', 'n3', 'n4', 'n5', 'n6', 'n7'].map(k => '<li>' + t(k) + '</li>').join('');
+    const base = { pathMtu: 1500, tcpOpt: 0, overlay: 'none', mode: 'tunnel' };
+    const rows = VECTORS.map(v => {
+      const m = maxUser(Object.assign({}, base, { transport: v.tr, cipher: v.c, integ: v.i }));
+      const got = m ? m.U : '—';
+      const pass = got === v.fgt;
+      return '<tr><td><code>' + proposalName(v.c, v.i) + '</code></td><td>' + TR_LABEL[v.tr] + '</td><td class="n">' + v.dst + '</td><td class="n">' + v.fgt +
+        '</td><td class="n">' + got + ' <span class="' + (pass ? 'ok-mark' : 'bad-mark') + '">' + (pass ? '✓' : '✕') + '</span></td>' +
+        '<td class="ref"><a href="' + v.src[1] + '" target="_blank" rel="noopener">' + esc(v.src[0]) + '</a></td></tr>';
+    }).join('');
+    $('vectors').innerHTML = '<thead><tr><th scope="col">' + t('vProp') + '</th><th scope="col">' + t('vEnc') + '</th><th scope="col" class="n">' + t('vDst') +
+      '</th><th scope="col" class="n">' + t('vFgt') + '</th><th scope="col" class="n">' + t('vCalc') + '</th><th scope="col">' + t('vSrc') + '</th></tr></thead><tbody>' + rows + '</tbody>';
+    $('sources').innerHTML = SOURCES.map(s => '<li><a href="' + s[1] + '" target="_blank" rel="noopener">' + esc(s[0]) + '</a></li>').join('');
+  }
+
+  function applyLang() {
+    document.documentElement.lang = lang;
+    document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+    document.querySelectorAll('[data-i18n-html]').forEach(el => { el.innerHTML = t(el.dataset.i18nHtml); });
+    ['cs', 'en'].forEach(l => $('lang-' + l).setAttribute('aria-pressed', String(l === lang)));
+    renderStatic();
+    render(true);
+  }
+
+  /* ----- events ----- */
+  document.querySelector('.panel').addEventListener('input', e => {
+    const el = e.target;
+    if (el.id === 'p1enc') fillP1Prf();
+    if (el.name === 'kind') applyKind(el.value);
+    if (el.name === 'preset') {
+      if (el.value !== 'custom') $('wanMtu').value = el.value;
+      else $('wanMtu').focus();
+    } else if (el.id === 'wanMtu') {
+      const v = el.value;
+      const id = v === '1500' ? 'p-eth' : v === '1492' ? 'p-pppoe' : 'p-custom';
+      $(id).checked = true;
+    }
+    render();
+  });
+  document.querySelector('.panel').addEventListener('change', () => render());
+  $('pkt').addEventListener('input', () => renderCheck(readCfg(), isValidProposal($('cipher').value, $('integ').value)));
+
+  $('matrix').addEventListener('click', e => {
+    const b = e.target.closest('button[data-fam]');
+    if (!b) return;
+    const fam = b.dataset.fam;
+    if (CIPHERS[$('cipher').value].fam !== fam) {
+      $('cipher').value = FAMILIES.find(f => f.fam === fam).rep;
+    }
+    if (b.dataset.integ) $('integ').value = b.dataset.integ;
+    render(true);
+  });
+
+  const pickBar = g => {
+    $('cipher').value = g.dataset.c;
+    if (g.dataset.i !== 'null') $('integ').value = g.dataset.i;
+    render(true);
+  };
+  $('pchart').addEventListener('click', e => { const g = e.target.closest('.bar'); if (g) pickBar(g); });
+  $('pchart').addEventListener('keydown', e => {
+    const g = e.target.closest('.bar');
+    if (g && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); pickBar(g); }
+  });
+  const tipEl = $('tip');
+  const showTip = (el, x, y) => {
+    tipEl.textContent = el.getAttribute('data-tip');
+    tipEl.hidden = false;
+    const w = tipEl.offsetWidth, h = tipEl.offsetHeight;
+    tipEl.style.left = Math.min(x + 14, window.innerWidth - w - 8) + 'px';
+    tipEl.style.top = Math.max(8, y - h - 12) + 'px';
+  };
+  document.addEventListener('mousemove', e => {
+    const el = e.target.closest && e.target.closest('[data-tip]');
+    if (el) showTip(el, e.clientX, e.clientY); else tipEl.hidden = true;
+  });
+  document.addEventListener('focusin', e => {
+    const el = e.target.closest && e.target.closest('.bar[data-tip]');
+    if (el) { const b = el.getBoundingClientRect(); showTip(el, b.left + b.width / 2, b.top); } else tipEl.hidden = true;
+  });
+  document.addEventListener('scroll', () => { tipEl.hidden = true; }, { passive: true });
+
+  document.querySelectorAll('.lang button').forEach(b => b.addEventListener('click', () => {
+    lang = b.dataset.lang;
+    try { localStorage.setItem('ipsecmtu.lang', lang); } catch (e) { /* ignore */ }
+    applyLang();
+  }));
+
+  const bindCopy = (btnId, preId) => $(btnId).addEventListener('click', () => {
+    const btn = $(btnId), text = $(preId).dataset.plain || '';
+    const done = msg => { btn.textContent = msg; setTimeout(() => { btn.textContent = t('copy'); }, 1800); };
+    const fallback = () => {
+      const range = document.createRange();
+      range.selectNodeContents($(preId));
+      const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
+      done(t('copyFail'));
+    };
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(() => done(t('copied')), fallback);
+      else fallback();
+    } catch (e) { fallback(); }
+  });
+
+  bindCopy('copyBtn', 'cli');
+  bindCopy('copyXml', 'xml');
+  applyKind(document.querySelector('input[name="kind"]:checked').value);
+  applyLang();
+})();
+
+</script>
+</body>
+</html>
