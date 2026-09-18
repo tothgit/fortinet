@@ -37,6 +37,7 @@ import datetime as dt
 import json
 import re
 import sys
+import time
 import urllib.error
 import urllib.request
 from datetime import date
@@ -66,7 +67,16 @@ RESTRICTED_PATH_FRAGMENT = "/content/dam/fortinet/assets/data-sheets/pdf/"
 
 RECENT_DAYS = 30
 HEAD_TIMEOUT = 20
-HEAD_MAX_WORKERS = 5
+# Lowered from 5: fortinet.com's CDN/WAF appears to actively drop some
+# connections from GitHub Actions' shared runner IP ranges (confirmed live
+# on 2026-09-18 — "Remote end closed connection without response" / SSL
+# EOF errors on PDFs that respond normally from other networks). A lower,
+# less bursty concurrency plus HEAD_RETRIES below is a mitigation, not a
+# guaranteed fix — this traffic-shaping risk was already flagged as
+# possible when the /data-sheets/pdf/ sub-path was first tracked.
+HEAD_MAX_WORKERS = 2
+HEAD_RETRIES = 2  # extra attempts after the first, on connection-level errors only
+HEAD_RETRY_DELAY = 2.0  # seconds, fixed backoff between attempts
 
 LIST_ITEM_RE = re.compile(
     r'<a\s+target="_blank"\s+href="(?P<href>/content/dam/fortinet/assets/data-sheets/[^"]+?\.pdf)"\s*>'
@@ -96,23 +106,21 @@ def fetch_bytes(url):
         return resp.read()
 
 
-class _NoRedirect(urllib.request.HTTPRedirectHandler):
-    """Refuse to follow 3xx responses so a HEAD check can tell the caller
-    the PDF URL redirected somewhere else, instead of silently reporting
-    headers that belong to the *redirect target* (which may not even be a
-    PDF — e.g. a dead link redirecting to a generic /resources page)."""
-
-    def redirect_request(self, req, fp, code, msg, headers, newurl):
-        return None
-
-
-_NO_REDIRECT_OPENER = urllib.request.build_opener(_NoRedirect)
-
-
 def fetch_headers(url, method="HEAD"):
+    """Return (headers, final_url) for a URL, following redirects normally.
+
+    Redirects ARE followed here (unlike an earlier version of this script)
+    because several tracked links 301-redirect to a *different but still
+    real* PDF (e.g. a renamed/superseded model) — a browser follows that
+    automatically and the person gets a working file. What still needs
+    catching is a redirect (or even a direct 200) that does NOT end on a
+    PDF at all (e.g. a dead link bounced to a generic /resources page) —
+    head_check() below checks the final response's Content-Type for that,
+    rather than refusing to follow the redirect in the first place.
+    """
     req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT}, method=method)
-    with _NO_REDIRECT_OPENER.open(req, timeout=HEAD_TIMEOUT) as resp:
-        return dict(resp.headers)
+    with urllib.request.urlopen(req, timeout=HEAD_TIMEOUT) as resp:
+        return dict(resp.headers), resp.geturl()
 
 
 def family_from_title(title):
@@ -167,29 +175,46 @@ def discover_listing():
     return items
 
 
-REDIRECT_CODES = (301, 302, 303, 307, 308)
-
-
 def head_check(url):
     """Return {"last_modified", "etag", "broken", "redirect_to"} for a PDF URL.
 
-    "broken" is True when the URL responds with a 3xx redirect instead of
-    the PDF itself — the redirect is deliberately NOT followed (see
-    _NoRedirect above), because following it silently would report
-    Last-Modified/ETag belonging to whatever page it lands on, which may
-    not be the datasheet (or even a PDF) at all.
+    Redirects are followed (see fetch_headers). "broken" is True only when
+    the response we actually land on isn't a PDF at all — caught via its
+    Content-Type — whether that happened directly or after a redirect. A
+    redirect that lands on a *different* real PDF (e.g. a renamed model)
+    is NOT broken: a browser follows it too, so the person gets a working
+    file, just not under the originally listed name.
     """
-    try:
-        headers = fetch_headers(url, method="HEAD")
-    except urllib.error.HTTPError as e:
-        if e.code in REDIRECT_CODES:
-            loc = e.headers.get("Location") if e.headers else None
-            log(f"  BROKEN LINK: {url} -> HTTP {e.code} redirect to {loc}")
-            return {"last_modified": None, "etag": None, "broken": True, "redirect_to": loc}
-        headers = dict(e.headers) if e.headers else {}
-    except Exception as e:
-        log(f"  HEAD failed for {url}: {e}")
+    headers = None
+    final_url = url
+    last_error = None
+    for attempt in range(HEAD_RETRIES + 1):
+        try:
+            headers, final_url = fetch_headers(url, method="HEAD")
+            last_error = None
+            break
+        except urllib.error.HTTPError as e:
+            # A real HTTP response (even an error one) — nothing to retry.
+            headers = dict(e.headers) if e.headers else {}
+            final_url = url
+            last_error = None
+            break
+        except Exception as e:
+            # Connection-level failure (reset, SSL EOF, timeout) — these
+            # are the ones seen from GitHub Actions' shared IP ranges and
+            # are worth one or two retries before giving up.
+            last_error = e
+            if attempt < HEAD_RETRIES:
+                time.sleep(HEAD_RETRY_DELAY)
+    if last_error is not None:
+        log(f"  HEAD failed for {url} after {HEAD_RETRIES + 1} attempts: {last_error}")
         return {"last_modified": None, "etag": None, "broken": False, "redirect_to": None}
+
+    content_type = (headers.get("Content-Type") or "").split(";")[0].strip().lower()
+    if content_type and content_type != "application/pdf":
+        log(f"  BROKEN LINK: {url} -> final {final_url} (content-type: {content_type or 'unknown'})")
+        redirect_to = final_url if final_url != url else None
+        return {"last_modified": None, "etag": None, "broken": True, "redirect_to": redirect_to}
 
     lm_raw = headers.get("Last-Modified") if headers else None
     etag = headers.get("ETag") if headers else None
