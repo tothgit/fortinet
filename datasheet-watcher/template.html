@@ -19,6 +19,8 @@
     --accent-soft:#f1e9ff;
     --danger:#c8443a;
     --danger-soft:#fbeae7;
+    --broken:#5b6b76;
+    --broken-soft:#eef1f3;
     --warning:#b8790a;
     --warning-soft:#fbf1dc;
     --mid:#8a8600;
@@ -98,7 +100,7 @@
 
   .stat-row{
     display:grid;
-    grid-template-columns:repeat(4,1fr);
+    grid-template-columns:repeat(5,1fr);
     gap:14px;
   }
   .stat{
@@ -247,10 +249,12 @@
   .pill.changed{ background:var(--warning-soft); color:var(--warning); }
   .pill.unchanged{ background:var(--ok-soft); color:var(--ok); }
   .pill.unknown{ background:var(--danger-soft); color:var(--danger); }
+  .pill.broken{ background:var(--broken-soft); color:var(--broken); }
   .pill .swatch.new{ background:var(--accent); }
   .pill .swatch.changed{ background:var(--warning); }
   .pill .swatch.unchanged{ background:var(--ok); }
   .pill .swatch.unknown{ background:var(--danger); }
+  .pill .swatch.broken{ background:var(--broken); }
 
   .empty{
     padding:48px 20px;
@@ -334,6 +338,7 @@
         <option value="changed">Změněno</option>
         <option value="unchanged">Beze změny</option>
         <option value="unknown">Neověřeno</option>
+        <option value="broken">Nedostupné</option>
       </select>
     </div>
     <div class="table-scroll">
@@ -347,7 +352,7 @@
   </div>
 
   <div class="method">
-    <b>Metodika:</b> jednou denně se stáhne <code>fortinet.com/resources/data-sheets?limit=200</code> (statický seznam všech datasheetů) a na každé nalezené PDF se pošle HTTP <code>HEAD</code> požadavek. Pokud se od předchozí kontroly změnil <code>Last-Modified</code> nebo <code>ETag</code>, je PDF označeno jako <span class="pill changed"><span class="swatch changed"></span>Změněno</span>. Sloupec „Dle stránky Fortinet" ukazuje nespolehlivé datum z CMS jen pro srovnání.
+    <b>Metodika:</b> jednou denně se stáhne <code>fortinet.com/resources/data-sheets?limit=200</code> (statický seznam všech datasheetů) a na každé nalezené PDF se pošle HTTP <code>HEAD</code> požadavek (přesměrování se přitom nenásledují). Pokud se od předchozí kontroly změnil <code>Last-Modified</code> nebo <code>ETag</code>, je PDF po dobu 30 dní od zjištění označeno jako <span class="pill changed"><span class="swatch changed"></span>Změněno</span>; nově objevené PDF je po stejnou dobu od prvního zjištění označeno jako <span class="pill new"><span class="swatch new"></span>Nové</span> (pokud mezitím dojde ke změně, přednost má „Změněno"). Pokud odkaz místo PDF odpoví přesměrováním jinam (na obecnou stránku, nebo na úplně jiný soubor), je označen jako <span class="pill broken"><span class="swatch broken"></span>Nedostupné</span> — takový odkaz aktuálně nevede na uvedený datasheet. Sloupec „Dle stránky Fortinet" ukazuje nespolehlivé datum z CMS jen pro srovnání.
   </div>
 
   <footer class="page">
@@ -360,7 +365,7 @@
 const TODAY = "__TODAY_ISO__";
 const DATA = __DATA_JSON__;
 
-const STATUS_LABEL = { new:'Nové', changed:'Změněno', unchanged:'Beze změny', unknown:'Neověřeno' };
+const STATUS_LABEL = { new:'Nové', changed:'Změněno', unchanged:'Beze změny', unknown:'Neověřeno', broken:'Nedostupné' };
 
 const COLS = [
   {k:'t', label:'Datasheet', cls:'product'},
@@ -386,9 +391,10 @@ function fmtDate(d){
 function renderStats(){
   const row = document.getElementById('stat-row');
   const statusStats = [
-    {key:'new', label:'Nově zjištěno', value: DATA.new_count},
-    {key:'changed', label:`Změněno (${DATA.recent_days} dní)`, value: DATA.recent_count},
+    {key:'new', label:`Nově zjištěno (${DATA.recent_days} dní)`, value: DATA.new_count},
+    {key:'changed', label:`Změněno (${DATA.recent_days} dní)`, value: DATA.changed_count},
     {key:'unknown', label:'Neověřeno (HEAD selhal)', value: DATA.unknown_count},
+    {key:'broken', label:'Nedostupné (odkaz nevede na PDF)', value: DATA.broken_count},
   ];
   row.innerHTML = '';
 
@@ -459,7 +465,8 @@ function renderTable(){
           return `<td class="status"><span class="pill ${r.s}"><span class="swatch ${r.s}"></span>${STATUS_LABEL[r.s]||r.s}</span></td>`;
         }
         if(c.k === 't'){
-          return `<td class="product"><a href="${r.u}" target="_blank" rel="noopener" title="Otevřít / stáhnout PDF">${r.t}<span class="ext-icon">↗</span></a></td>`;
+          const linkTitle = r.s === 'broken' ? 'Pozor: tento odkaz aktuálně nevede na PDF (přesměrování jinam)' : 'Otevřít / stáhnout PDF';
+          return `<td class="product"><a href="${r.u}" target="_blank" rel="noopener" title="${linkTitle}">${r.t}<span class="ext-icon">↗</span></a></td>`;
         }
         if(c.k === 'v'){
           const prevNote = r.prev && r.prev !== r.v ? `<div class="prev">dříve: ${fmtDate(r.prev)}</div>` : '';
