@@ -1,0 +1,69 @@
+name: Daily Fortinet Datasheet Watcher update
+
+"on":
+  schedule:
+    # 05:15 UTC — 15 minutes after the Product Lifecycle Radar's own daily
+    # job, so the two workflows don't race to push/deploy at the same time.
+    - cron: '15 5 * * *'
+  workflow_dispatch: {}
+  push:
+    branches: [main]
+    paths:
+      - 'datasheet-watcher/template.html'
+      - '.github/scripts/build_datasheet_watcher.py'
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+# Same deployment group as the other daily jobs — only one Pages
+# deployment runs at a time.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Refresh data from fortinet.com/resources/data-sheets and render index.html
+        run: python .github/scripts/build_datasheet_watcher.py
+
+      - name: Commit refreshed index.html and state.json (if they changed)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add datasheet-watcher/index.html datasheet-watcher/data/state.json
+          if git diff --cached --quiet; then
+            echo "No data changes today."
+          else
+            git commit -m "Daily datasheet check: $(date -u +%Y-%m-%d)"
+            git push
+          fi
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          # Upload the whole repo root (not just datasheet-watcher/) so the
+          # published URL keeps the /datasheet-watcher/ path segment.
+          path: .
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
