@@ -77,6 +77,7 @@ HEAD_TIMEOUT = 20
 HEAD_MAX_WORKERS = 2
 HEAD_RETRIES = 2  # extra attempts after the first, on connection-level errors only
 HEAD_RETRY_DELAY = 2.0  # seconds, fixed backoff between attempts
+HEAD_REQUEST_DELAY = 1.0  # seconds, paced before every HEAD attempt (each of the 2 workers waits this long between the PDFs it checks)
 
 LIST_ITEM_RE = re.compile(
     r'<a\s+target="_blank"\s+href="(?P<href>/content/dam/fortinet/assets/data-sheets/[^"]+?\.pdf)"\s*>'
@@ -189,6 +190,7 @@ def head_check(url):
     final_url = url
     last_error = None
     for attempt in range(HEAD_RETRIES + 1):
+        time.sleep(HEAD_REQUEST_DELAY)
         try:
             headers, final_url = fetch_headers(url, method="HEAD")
             last_error = None
@@ -344,24 +346,45 @@ def build_rows(listing, checks, old_state):
                 days_ago = None
 
         if status is None:
-            # Rolling-window classification: an item counts as "new" for
-            # RECENT_DAYS after it was first seen, and as "changed" for
-            # RECENT_DAYS after its most recent *genuine* content change
-            # (prev_last_modified set — i.e. not just the initial
-            # discovery). Previously this only looked at today's literal
-            # check, so "Změněno"/"Nově zjištěno" silently reverted to
-            # "Beze změny" the very next day even for a change from
-            # yesterday — this makes the "(N dní)" label on the page true.
-            first_seen_days = None
-            if first_seen:
+            # Classification requested by the user: purely a comparison of
+            # two *dates*, not a function of when our own tool first saw
+            # the item (that rolling-window approach was tried first, but
+            # on a freshly-reset state.json baseline everything looked
+            # "new" and nothing ever looked "changed", which didn't match
+            # what the user actually wanted to see).
+            #
+            # "Nově zjištěno" (new): the page's own "Dle stránky Fortinet"
+            # date (meta["page_date"] — the CMS-supplied, otherwise-
+            # untrusted date) falls within the last RECENT_DAYS days of
+            # today. This is a proxy for "Fortinet's listing says this was
+            # recently added" — we don't try to verify it independently,
+            # we just surface what the page claims.
+            #
+            # "Změněno" (changed): the page date is *not* recent (older
+            # than the window, or missing/unparseable) — i.e. this is not
+            # a freshly-listed item — but our own independently-verified
+            # HTTP Last-Modified (the "v"/verified field) *is* within the
+            # last RECENT_DAYS days. This is exactly the scenario the tool
+            # exists for: Fortinet's CMS date is stale or wrong, but the
+            # PDF file itself was actually modified recently per our own
+            # check.
+            page_date_days = None
+            if meta["page_date"]:
                 try:
-                    first_seen_days = (TODAY - date.fromisoformat(first_seen)).days
+                    page_date_days = (TODAY - date.fromisoformat(meta["page_date"])).days
                 except Exception:
-                    first_seen_days = None
-            if prev is not None and days_ago is not None and days_ago <= RECENT_DAYS:
-                status = "changed"
-            elif first_seen_days is not None and first_seen_days <= RECENT_DAYS:
+                    page_date_days = None
+            lm_days = None
+            if verified:
+                try:
+                    lm_days = (TODAY - date.fromisoformat(verified)).days
+                except Exception:
+                    lm_days = None
+
+            if page_date_days is not None and page_date_days <= RECENT_DAYS:
                 status = "new"
+            elif lm_days is not None and lm_days <= RECENT_DAYS:
+                status = "changed"
             else:
                 status = "unchanged"
 
@@ -394,19 +417,17 @@ def main():
 
     rows, new_state, unknown_count, broken_count, removed_count = build_rows(listing, checks, old_state)
 
-    today_iso = TODAY.isoformat()
-    # "s" is already the rolling-window status (see build_rows) — new_count
-    # / changed_count below mean "within the last RECENT_DAYS days", which
-    # is what the "(N dní)" labels on the page show.
+    # "s" is the date-based status decided in build_rows: "new" means the
+    # page's own "Dle stránky Fortinet" date is within the last
+    # RECENT_DAYS days; "changed" means that date is not recent but our
+    # independently-verified HTTP Last-Modified is.
     new_count = sum(1 for r in rows if r["s"] == "new")
     changed_count = sum(1 for r in rows if r["s"] == "changed")
-    new_today = sum(1 for r in rows if r["fs"] == today_iso)
-    changed_today = sum(1 for r in rows if r["chg"] == today_iso and r["prev"] is not None)
     restricted_total = sum(1 for r in rows if r["r"])
 
     log(f"Result: {len(rows)} tracked ({restricted_total} under restricted /pdf/ path), "
-        f"{new_today} new today ({new_count} in last {RECENT_DAYS}d), "
-        f"{changed_today} changed today ({changed_count} in last {RECENT_DAYS}d), "
+        f"{new_count} new (page date within {RECENT_DAYS}d), "
+        f"{changed_count} changed (page date old, Last-Modified within {RECENT_DAYS}d), "
         f"{unknown_count} unknown (HEAD failed), {broken_count} broken (redirected away from the PDF), "
         f"{removed_count} removed from listing")
 
