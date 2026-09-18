@@ -96,9 +96,22 @@ def fetch_bytes(url):
         return resp.read()
 
 
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    """Refuse to follow 3xx responses so a HEAD check can tell the caller
+    the PDF URL redirected somewhere else, instead of silently reporting
+    headers that belong to the *redirect target* (which may not even be a
+    PDF — e.g. a dead link redirecting to a generic /resources page)."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
+_NO_REDIRECT_OPENER = urllib.request.build_opener(_NoRedirect)
+
+
 def fetch_headers(url, method="HEAD"):
     req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT}, method=method)
-    with urllib.request.urlopen(req, timeout=HEAD_TIMEOUT) as resp:
+    with _NO_REDIRECT_OPENER.open(req, timeout=HEAD_TIMEOUT) as resp:
         return dict(resp.headers)
 
 
@@ -154,15 +167,29 @@ def discover_listing():
     return items
 
 
+REDIRECT_CODES = (301, 302, 303, 307, 308)
+
+
 def head_check(url):
-    """Return (last_modified_iso, etag) for a PDF URL, or (None, None) on failure."""
+    """Return {"last_modified", "etag", "broken", "redirect_to"} for a PDF URL.
+
+    "broken" is True when the URL responds with a 3xx redirect instead of
+    the PDF itself — the redirect is deliberately NOT followed (see
+    _NoRedirect above), because following it silently would report
+    Last-Modified/ETag belonging to whatever page it lands on, which may
+    not be the datasheet (or even a PDF) at all.
+    """
     try:
         headers = fetch_headers(url, method="HEAD")
     except urllib.error.HTTPError as e:
+        if e.code in REDIRECT_CODES:
+            loc = e.headers.get("Location") if e.headers else None
+            log(f"  BROKEN LINK: {url} -> HTTP {e.code} redirect to {loc}")
+            return {"last_modified": None, "etag": None, "broken": True, "redirect_to": loc}
         headers = dict(e.headers) if e.headers else {}
     except Exception as e:
         log(f"  HEAD failed for {url}: {e}")
-        return None, None
+        return {"last_modified": None, "etag": None, "broken": False, "redirect_to": None}
 
     lm_raw = headers.get("Last-Modified") if headers else None
     etag = headers.get("ETag") if headers else None
@@ -172,7 +199,7 @@ def head_check(url):
             last_modified = parsedate_to_datetime(lm_raw).date().isoformat()
         except Exception:
             last_modified = None
-    return last_modified, etag
+    return {"last_modified": last_modified, "etag": etag, "broken": False, "redirect_to": None}
 
 
 def check_all(urls):
@@ -181,8 +208,7 @@ def check_all(urls):
         future_to_url = {pool.submit(head_check, url): url for url in urls}
         for fut in concurrent.futures.as_completed(future_to_url):
             url = future_to_url[fut]
-            last_modified, etag = fut.result()
-            results[url] = {"last_modified": last_modified, "etag": etag}
+            results[url] = fut.result()
     return results
 
 
@@ -200,12 +226,38 @@ def build_rows(listing, checks, old_state):
     new_state = {}
     today_iso = TODAY.isoformat()
     unknown_count = 0
+    broken_count = 0
 
     for url, meta in listing.items():
-        chk = checks.get(url, {"last_modified": None, "etag": None})
+        chk = checks.get(url, {"last_modified": None, "etag": None, "broken": False, "redirect_to": None})
         old = old_state.get(url)
+        status = None  # "broken"/"unknown" set it directly below; otherwise
+        # it's decided after the branch, by the rolling-window rule.
 
-        if chk["last_modified"] is None and chk["etag"] is None:
+        if chk.get("broken"):
+            # The URL 3xx-redirects instead of serving the PDF — the link
+            # published on fortinet.com/resources/data-sheets doesn't work
+            # as-is. Keep whatever last-known-good data we have (if any)
+            # for display, but the status makes clear this needs attention.
+            broken_count += 1
+            status = "broken"
+            if old:
+                verified = old.get("last_modified")
+                changed_on = old.get("last_changed")
+                first_seen = old.get("first_seen", today_iso)
+                prev = old.get("prev_last_modified")
+                new_state[url] = {**old, "last_checked": today_iso}
+            else:
+                verified = None
+                changed_on = None
+                first_seen = today_iso
+                prev = None
+                new_state[url] = {
+                    "last_modified": None, "etag": None,
+                    "first_seen": today_iso, "last_checked": today_iso,
+                    "last_changed": None, "prev_last_modified": None,
+                }
+        elif chk["last_modified"] is None and chk["etag"] is None:
             # HEAD failed — carry forward whatever we knew before.
             unknown_count += 1
             if old:
@@ -227,7 +279,8 @@ def build_rows(listing, checks, old_state):
                 first_seen = today_iso
                 prev = None
         elif old is None:
-            status = "new"
+            # status decided below by the rolling-window rule, same as the
+            # "existing item" branch — see the comment above that cascade.
             verified = chk["last_modified"]
             changed_on = today_iso
             first_seen = today_iso
@@ -243,12 +296,10 @@ def build_rows(listing, checks, old_state):
                 or (chk["last_modified"] and old.get("last_modified") and chk["last_modified"] != old.get("last_modified"))
             )
             if changed:
-                status = "changed"
                 verified = chk["last_modified"]
                 changed_on = today_iso
                 prev = old.get("last_modified")
             else:
-                status = "unchanged"
                 verified = chk["last_modified"] or old.get("last_modified")
                 changed_on = old.get("last_changed")
                 prev = old.get("prev_last_modified")
@@ -267,6 +318,28 @@ def build_rows(listing, checks, old_state):
             except Exception:
                 days_ago = None
 
+        if status is None:
+            # Rolling-window classification: an item counts as "new" for
+            # RECENT_DAYS after it was first seen, and as "changed" for
+            # RECENT_DAYS after its most recent *genuine* content change
+            # (prev_last_modified set — i.e. not just the initial
+            # discovery). Previously this only looked at today's literal
+            # check, so "Změněno"/"Nově zjištěno" silently reverted to
+            # "Beze změny" the very next day even for a change from
+            # yesterday — this makes the "(N dní)" label on the page true.
+            first_seen_days = None
+            if first_seen:
+                try:
+                    first_seen_days = (TODAY - date.fromisoformat(first_seen)).days
+                except Exception:
+                    first_seen_days = None
+            if prev is not None and days_ago is not None and days_ago <= RECENT_DAYS:
+                status = "changed"
+            elif first_seen_days is not None and first_seen_days <= RECENT_DAYS:
+                status = "new"
+            else:
+                status = "unchanged"
+
         rows.append({
             "t": meta["title"],
             "f": meta["family"],
@@ -284,7 +357,7 @@ def build_rows(listing, checks, old_state):
     removed = [u for u in old_state if u not in listing]
 
     rows.sort(key=lambda r: (r["chg"] or "0000-00-00"), reverse=True)
-    return rows, new_state, unknown_count, len(removed)
+    return rows, new_state, unknown_count, broken_count, len(removed)
 
 
 def main():
@@ -294,15 +367,23 @@ def main():
     log(f"Checking {len(listing)} PDFs via HTTP HEAD (Last-Modified/ETag, {HEAD_MAX_WORKERS} at a time)...")
     checks = check_all(list(listing.keys()))
 
-    rows, new_state, unknown_count, removed_count = build_rows(listing, checks, old_state)
+    rows, new_state, unknown_count, broken_count, removed_count = build_rows(listing, checks, old_state)
 
+    today_iso = TODAY.isoformat()
+    # "s" is already the rolling-window status (see build_rows) — new_count
+    # / changed_count below mean "within the last RECENT_DAYS days", which
+    # is what the "(N dní)" labels on the page show.
     new_count = sum(1 for r in rows if r["s"] == "new")
     changed_count = sum(1 for r in rows if r["s"] == "changed")
-    recent_count = sum(1 for r in rows if r["days"] is not None and r["days"] <= RECENT_DAYS and r["s"] in ("new", "changed"))
+    new_today = sum(1 for r in rows if r["fs"] == today_iso)
+    changed_today = sum(1 for r in rows if r["chg"] == today_iso and r["prev"] is not None)
     restricted_total = sum(1 for r in rows if r["r"])
 
-    log(f"Result: {len(rows)} tracked ({restricted_total} under restricted /pdf/ path), {new_count} new, {changed_count} changed today, "
-        f"{recent_count} changed in last {RECENT_DAYS}d, {unknown_count} unknown (HEAD failed), {removed_count} removed from listing")
+    log(f"Result: {len(rows)} tracked ({restricted_total} under restricted /pdf/ path), "
+        f"{new_today} new today ({new_count} in last {RECENT_DAYS}d), "
+        f"{changed_today} changed today ({changed_count} in last {RECENT_DAYS}d), "
+        f"{unknown_count} unknown (HEAD failed), {broken_count} broken (redirected away from the PDF), "
+        f"{removed_count} removed from listing")
 
     if not TEMPLATE_PATH.exists():
         log(f"ERROR: template not found at {TEMPLATE_PATH}")
@@ -313,8 +394,8 @@ def main():
         "total": len(rows),
         "new_count": new_count,
         "changed_count": changed_count,
-        "recent_count": recent_count,
         "unknown_count": unknown_count,
+        "broken_count": broken_count,
         "removed_count": removed_count,
         "recent_days": RECENT_DAYS,
         "restricted_total": restricted_total,
