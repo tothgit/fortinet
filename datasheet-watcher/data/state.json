@@ -8,11 +8,11 @@
     "prev_last_modified": null
   },
   "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiAP_S_Series.pdf": {
-    "etag": null,
+    "etag": "\"45bc4-65bb7daf129ad\"",
     "first_seen": "2026-09-18",
     "last_changed": null,
     "last_checked": "2026-09-18",
-    "last_modified": null,
+    "last_modified": "2026-09-18",
     "prev_last_modified": null
   },
   "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiAuthenticator.pdf": {
@@ -136,11 +136,11 @@
     "prev_last_modified": null
   },
   "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiGate_FortiWiFi_60E_Series.pdf": {
-    "etag": null,
+    "etag": "\"4e81fe-650695085d440\"",
     "first_seen": "2026-09-18",
     "last_changed": null,
     "last_checked": "2026-09-18",
-    "last_modified": null,
+    "last_modified": "2026-04-27",
     "prev_last_modified": null
   },
   "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiGate_Rugged_Series.pdf": {
@@ -312,11 +312,11 @@
     "prev_last_modified": null
   },
   "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiToken-OTP.pdf": {
-    "etag": null,
+    "etag": "\"eec33-657b6c0e28900\"",
     "first_seen": "2026-09-18",
     "last_changed": null,
     "last_checked": "2026-09-18",
-    "last_modified": null,
+    "last_modified": "2026-07-29",
     "prev_last_modified": null
   },
   "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiToken_200.pdf": {
@@ -336,11 +336,11 @@
     "prev_last_modified": null
   },
   "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiToken_Mobile.pdf": {
-    "etag": null,
+    "etag": "\"eec33-657b6c0e28900\"",
     "first_seen": "2026-09-18",
     "last_changed": null,
     "last_checked": "2026-09-18",
-    "last_modified": null,
+    "last_modified": "2026-07-29",
     "prev_last_modified": null
   },
   "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiVoiceEnterprise.pdf": {
@@ -680,11 +680,11 @@
     "prev_last_modified": null
   },
   "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortigate-7121f.pdf": {
-    "etag": null,
+    "etag": "\"8939f8-64f9dd711ed40\"",
     "first_seen": "2026-09-18",
     "last_changed": null,
     "last_checked": "2026-09-18",
-    "last_modified": null,
+    "last_modified": "2026-04-17",
     "prev_last_modified": null
   },
   "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortigate-nstx.pdf": {
@@ -800,11 +800,11 @@
     "prev_last_modified": null
   },
   "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortipentest.pdf": {
-    "etag": null,
+    "etag": "\"1836ba-62324bacc2600\"",
     "first_seen": "2026-09-18",
     "last_changed": null,
     "last_checked": "2026-09-18",
-    "last_modified": null,
+    "last_modified": "2024-09-28",
     "prev_last_modified": null
   },
   "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortiplanner.pdf": {
@@ -888,11 +888,11 @@
     "prev_last_modified": null
   },
   "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortiweb-cloud-azure.pdf": {
-    "etag": null,
+    "etag": "\"27ce88-64023644c02c0\"",
     "first_seen": "2026-09-18",
     "last_changed": null,
     "last_checked": "2026-09-18",
-    "last_modified": null,
+    "last_modified": "2025-10-02",
     "prev_last_modified": null
   },
   "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortixdr.pdf": {
@@ -904,19 +904,19 @@
     "prev_last_modified": null
   },
   "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fs-fortiguard-incident-response-service.pdf": {
-    "etag": null,
+    "etag": "\"6b829-63e79b66fa940\"",
     "first_seen": "2026-09-18",
     "last_changed": null,
     "last_checked": "2026-09-18",
-    "last_modified": null,
+    "last_modified": "2025-09-10",
     "prev_last_modified": null
   },
   "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fs-fortiguard-managed-detection-and-response-service.pdf": {
-    "etag": null,
+    "etag": "\"6b829-63e79b66fa940\"",
     "first_seen": "2026-09-18",
     "last_changed": null,
     "last_checked": "2026-09-18",
-    "last_modified": null,
+    "last_modified": "2025-09-10",
     "prev_last_modified": null
   },
   "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/ko_kr/fortianalyzer-bd.pdf": {
