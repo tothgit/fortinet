@@ -1,0 +1,1178 @@
+{
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiADC.pdf": {
+    "etag": "\"6fd63e-6517fcd47dfc0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-05-11",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiAP_S_Series.pdf": {
+    "etag": "\"45bc4-65bb7db089966\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-09-18",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiAuthenticator.pdf": {
+    "etag": "\"4a57d5-65a6307f4a680\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-09-01",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiCASB.pdf": {
+    "etag": "\"137a7c-65b7f91c75d40\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-09-15",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiCall.pdf": {
+    "etag": "\"108913-60e2bd3705180\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2024-01-05",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiCamera.pdf": {
+    "etag": "\"33fb1f-6586d0375df40\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-08-07",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiCloud.pdf": {
+    "etag": "\"13f0cf-63d50db3ab640\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2025-08-27",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiConverter.pdf": {
+    "etag": "\"518973-6581bbd445fc0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-08-03",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiDeceptor.pdf": {
+    "etag": "\"333062-6568bf3ccebc0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-07-14",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiExtender.pdf": {
+    "etag": "\"3d3c11-65af296bfc680\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-09-08",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiFone_IP_Series.pdf": {
+    "etag": "\"43d3ed-64d302774d100\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-03-17",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiGate_2500E.pdf": {
+    "etag": "\"581bdb-64f9da8a35480\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-04-17",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiGate_600D.pdf": {
+    "etag": "\"3ddc4-65b9fb08c6bcc\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-09-16",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiGate_7000_Series_Bundle.pdf": {
+    "etag": "\"62a17b-64f9da92ca8c0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-04-17",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiGate_80E_Series.pdf": {
+    "etag": "\"1cefbf-5d2fdf76985c0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2021-12-13",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiGate_Cloud.pdf": {
+    "etag": "\"150cb1-64a818f23f940\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-02-11",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiGate_FortiWiFi_30E.pdf": {
+    "etag": "\"34c63a-5c7a8980d60c0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2021-07-21",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiGate_FortiWiFi_60E_Series.pdf": {
+    "etag": "\"4e81fe-650695085d440\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-04-27",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiGate_Rugged_Series.pdf": {
+    "etag": "\"454085-655eb9b184b00\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-07-06",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiGate_VMX.pdf": {
+    "etag": "\"133b28-5cfc64d01ef80\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2021-11-02",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiGate_VM_AWS.pdf": {
+    "etag": "\"46887c-646459b646680\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2025-12-19",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiGate_VM_AliCloud.pdf": {
+    "etag": "\"460591-6573ff13b1080\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-07-23",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiGate_VM_Azure.pdf": {
+    "etag": "\"55ba20-646459d98f9c0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2025-12-19",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiGate_VM_GCP.pdf": {
+    "etag": "\"46ea36-65a9eb3044cc0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-09-04",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiGate_VM_KVM.pdf": {
+    "etag": "\"477d23-646459ba16f80\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2025-12-19",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiGate_VM_OCI.pdf": {
+    "etag": "\"4ef93b-64e70972ee300\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-04-02",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiGuard_Security_Services.pdf": {
+    "etag": "\"2ed5c-60aac610a94c0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2023-11-21",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiMail-Cloud-Gateway.pdf": {
+    "etag": "\"3b72c9-62e4cf7db4ac0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2025-02-17",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiMail.pdf": {
+    "etag": "\"3f6888-648c7d7a6f980\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-01-20",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiOS.pdf": {
+    "etag": "\"a361f-5e67600d45c80\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2022-08-17",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiOS_Wireless.pdf": {
+    "etag": "\"16b227-63ef759944f40\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2025-09-17",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiPortal.pdf": {
+    "etag": "\"442cae-603b63e18ae40\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2023-08-25",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiPresence.pdf": {
+    "etag": "\"a34025-6063c58bf4b40\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2023-09-26",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiProxy.pdf": {
+    "etag": "\"37b847-60e93f9f79e40\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2024-01-10",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiRecorder.pdf": {
+    "etag": "\"7a45ab-6573ff1d3a700\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-07-23",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiSIEM.pdf": {
+    "etag": "\"3812e7-6523743d55fc0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-05-20",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiSandbox.pdf": {
+    "etag": "\"7518ea-65493bc84a800\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-06-19",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiSwitchRugged.pdf": {
+    "etag": "\"5ba98e-65af2639bbc00\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-09-08",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiSwitch_Data_Center_Series.pdf": {
+    "etag": "\"ada9f5-65af2644394c0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-09-08",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiToken-OTP.pdf": {
+    "etag": "\"eec33-657b6c0e28900\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-07-29",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiToken_200.pdf": {
+    "etag": "\"eec33-657b6c0e28900\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-07-29",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiToken_300.pdf": {
+    "etag": "\"d9f13-6128f34b27d80\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2024-03-01",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiToken_Mobile.pdf": {
+    "etag": "\"eec33-657b6c0e28900\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-07-29",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiVoiceEnterprise.pdf": {
+    "etag": "\"d64cc-659d72e2ff700\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-08-25",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiVoice_Call_Center.pdf": {
+    "etag": "\"11c466-622337a5f3400\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2024-09-16",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiVoice_Cloud.pdf": {
+    "etag": "\"1b5023-622337a7db880\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2024-09-16",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiVoice_Gateway.pdf": {
+    "etag": "\"4bb635-6421b32514100\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2025-10-27",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiWeb.pdf": {
+    "etag": "\"4b04d3-645028f8e9040\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2025-12-03",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiWeb_Managed_Rules_for_AWS.pdf": {
+    "etag": "\"10256e-627b3bedc45c0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2024-11-25",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/Fortinet-fabric-connectors.pdf": {
+    "etag": "\"29fddb-60e2f30aa8fc0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2024-01-05",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/Fortinet_Data_Privacy_Practices.pdf": {
+    "etag": "\"26db7c-657553289eb00\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-07-24",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/Fortinet_Developer_Network.pdf": {
+    "etag": "\"27eeca-65355a04d25c0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-06-03",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/Fortinet_Product_Matrix.pdf": {
+    "etag": "\"1e1fb-65b685f3fb140\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-09-14",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/Fortinet_Transceivers.pdf": {
+    "etag": "\"bf9fa-65355a04d25c0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-06-03",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/Fortinet_Wireless_Product_Matrix.pdf": {
+    "etag": "\"bf39f-65b68618386c0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-09-14",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/container-fortios.pdf": {
+    "etag": "\"c44e7-61d032f2f4b80\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2024-07-12",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fg-4400f-intro.pdf": {
+    "etag": "\"9d313-5ac3dffbb49c0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2020-08-06",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fgaas.pdf": {
+    "etag": "\"158fd6-648289a7c6800\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-01-12",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortiaiops.pdf": {
+    "etag": "\"723b1a-6514bf0866300\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-05-08",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortianalyzer-bd.pdf": {
+    "etag": "\"811ba7-63b9a7cad52c0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2025-08-05",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortianalyzer.pdf": {
+    "etag": "\"9b4411-657156fbf4640\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-07-21",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortiap-accessories.pdf": {
+    "etag": "\"cbe167-64c511abe3940\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-03-06",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/forticamera-cloud.pdf": {
+    "etag": "\"210f09-63f625b8435c0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2025-09-22",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/forticlient-forensic-service.pdf": {
+    "etag": "\"10e397-64255ca6c1c00\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2025-10-30",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/forticlient-managed-services.pdf": {
+    "etag": "\"155a26-5de32b15dd140\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2022-05-04",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/forticlient.pdf": {
+    "etag": "\"16277e-643c0ed1ac3c0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2025-11-17",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/forticnapp.pdf": {
+    "etag": "\"18ffde-64c511a442740\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-03-06",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortiddos.pdf": {
+    "etag": "\"2023f6-65b7f91a8d8c0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-09-15",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortidlp.pdf": {
+    "etag": "\"1a5d83-648f27f856cc0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-01-22",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortiedr-2022-mitre-results.pdf": {
+    "etag": "\"64494-5e1e84d4b5c40\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2022-06-20",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortiedr.pdf": {
+    "etag": "\"20948d-6323b797da2c0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2025-04-08",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortiendpoint.pdf": {
+    "etag": "\"17e674-636b90c91df00\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2025-06-04",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortigate-1100e-series.pdf": {
+    "etag": "\"4b05f7-64f9da7fb7bc0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-04-17",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortigate-1800f-series.pdf": {
+    "etag": "\"5df95a-64f9e0013f940\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-04-17",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortigate-2200e-series.pdf": {
+    "etag": "\"608ca9-64f9da83884c0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-04-17",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortigate-2600f-series.pdf": {
+    "etag": "\"57d3ec-64f9e0041c000\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-04-17",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortigate-3000f-series.pdf": {
+    "etag": "\"51ace8-64f9e006f86c0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-04-17",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortigate-3200f-series.pdf": {
+    "etag": "\"6f0723-64f9dffd6f040\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-04-17",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortigate-3300e-series.pdf": {
+    "etag": "\"609180-64f9da8758dc0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-04-17",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortigate-3500f-series.pdf": {
+    "etag": "\"1d18d8-64f9dcf153fc0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-04-17",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortigate-3700f-series.pdf": {
+    "etag": "\"6b88ee-64f9dcf5248c0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-04-17",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortigate-4200f-series.pdf": {
+    "etag": "\"65a6b0-64f9dcf800f80\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-04-17",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortigate-4400f-series.pdf": {
+    "etag": "\"6e426d-64f9dcfbd1880\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-04-17",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortigate-4800f-series.pdf": {
+    "etag": "\"8d2331-64f9dd08375c0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-04-17",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortigate-70f-series.pdf": {
+    "etag": "\"4d1460-6520de2c6dd40\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-05-18",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortigate-7121f.pdf": {
+    "etag": "\"8939f8-64f9dd711ed40\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-04-17",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortigate-nstx.pdf": {
+    "etag": "\"445691-5f49ddff56f00\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2023-02-14",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortigate-vm.pdf": {
+    "etag": "\"46c75d-646459e9c6000\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2025-12-19",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortiguard-socaas.pdf": {
+    "etag": "\"d55a1-64d42da3ee840\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-03-18",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortimanager.pdf": {
+    "etag": "\"7e1554-65001977cecc0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-04-22",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortimonitor.pdf": {
+    "etag": "\"ca112-626eb70bf01c0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2024-11-15",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortinac.pdf": {
+    "etag": "\"220b62-64c511adcbdc0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-03-06",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortindr-cloud.pdf": {
+    "etag": "\"1ef2c7-6409bd4d373c0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2025-10-08",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortindr.pdf": {
+    "etag": "\"296ede-65b168c913a80\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-09-10",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortinet-antennas.pdf": {
+    "etag": "\"845526-64c038730d040\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-03-02",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortinet-cgnat-solution.pdf": {
+    "etag": "\"4bbd18-621fa17142240\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2024-09-13",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortinet-secure-product-development-lifecycle.pdf": {
+    "etag": "\"fd026-6274e7d8403c0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2024-11-20",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortinet-security-awareness-training-service.pdf": {
+    "etag": "\"84779-6236d9e269500\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2024-10-01",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortinet_secure_sdwan.pdf": {
+    "etag": "\"158fe8-615dfb46a0040\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2024-04-12",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortipam.pdf": {
+    "etag": "\"1c590a-65a6307d62200\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-09-01",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortipentest.pdf": {
+    "etag": "\"1836ba-62324bacc2600\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2024-09-28",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortiplanner.pdf": {
+    "etag": "\"12a82c-5c852c8b91700\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2021-07-30",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortirecon.pdf": {
+    "etag": "\"19cd9d-65705c3eff580\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-07-20",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortisase.pdf": {
+    "etag": "\"1ac35f-651aa3208ed80\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-05-13",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortisiem-mssp.pdf": {
+    "etag": "\"1ac86c-60b6a0b392fc0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2023-12-01",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortiswitch-mgr.pdf": {
+    "etag": "\"173005-62a27b457ad80\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2024-12-26",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortitoken-400.pdf": {
+    "etag": "\"d0149-63a7bb89dc640\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2025-07-22",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortitoken.pdf": {
+    "etag": "\"eec33-657b6c0e28900\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-07-29",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortivoice-capacity.pdf": {
+    "etag": "\"90b4b-6585c54034580\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-08-06",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortivoice-phone-system-availability.pdf": {
+    "etag": "\"8561e-6585c541287c0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-08-06",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortivoice-ucs.pdf": {
+    "etag": "\"11e33f-61505ea870180\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2024-04-01",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortiweb-cloud-azure.pdf": {
+    "etag": "\"27ce88-64023644c02c0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2025-10-02",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fortixdr.pdf": {
+    "etag": "\"22b499-6323b798ce500\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2025-04-08",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fs-fortiguard-incident-response-service.pdf": {
+    "etag": "\"6b829-63e79b66fa940\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2025-09-10",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/fs-fortiguard-managed-detection-and-response-service.pdf": {
+    "etag": "\"6b829-63e79b66fa940\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2025-09-10",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/ko_kr/fortianalyzer-bd.pdf": {
+    "etag": "\"55f9d1-5aef992784ac0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2020-09-10",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/managed-fortigate-svc.pdf": {
+    "etag": "\"b7ee2-64103cc168840\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2025-10-13",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/og-fortiauthenticator.pdf": {
+    "etag": "\"299a5-65949d4af3200\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-08-18",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/og-fortirecon.pdf": {
+    "etag": "\"1691c-657b8092ff200\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-07-29",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/og-fortisase.pdf": {
+    "etag": "\"991f0-65ba687203e80\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-09-17",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/og-socaas.pdf": {
+    "etag": "\"7a85c-64dbbc34b9ec0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-03-24",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/og-ztna.pdf": {
+    "etag": "\"718bf-64a6ddd8a8f40\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-02-10",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/pb-socaas.pdf": {
+    "etag": "\"14974a-6507d54329880\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-04-28",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/pdf/fortiap-naming.pdf": {
+    "etag": "\"cba58-65af284fca800\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-09-08",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/pdf/fortiap-series.pdf": {
+    "etag": "\"ac1a15-65af28b9a61c0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-09-08",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/pdf/fortiappsec-cloud.pdf": {
+    "etag": "\"27ce88-64023644c02c0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2025-10-02",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/pdf/fortidevice-cloud.pdf": {
+    "etag": "\"282c54-62bcae9ca4780\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2025-01-16",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/pdf/fortifone-softclient.pdf": {
+    "etag": "\"105c68-64d3029c7e8c0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-03-17",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/pdf/fortigate-200g-series.pdf": {
+    "etag": "\"544f99-656763d218300\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-07-13",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/pdf/fortigate-600f-series.pdf": {
+    "etag": "\"5a0971-64f9dd6d4e440\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-04-17",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/pdf/fortigate-7000f-series.pdf": {
+    "etag": "\"8939f8-64f9dd711ed40\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-04-17",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/pdf/fortigate-700g-series.pdf": {
+    "etag": "\"619568-6595e1c6d7fc0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-08-19",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/pdf/fortigate-900g-series.pdf": {
+    "etag": "\"5f3d2f-653917fdfca40\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-06-06",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/pdf/fortigate-90g-series.pdf": {
+    "etag": "\"181283-656763d6dce40\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-07-13",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/pdf/fortigate-fortiwifi-40f-series.pdf": {
+    "etag": "\"50b9dc-6506966380740\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-04-27",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/pdf/fortigate-fortiwifi-60f-series.pdf": {
+    "etag": "\"4e81fe-650695085d440\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-04-27",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/pdf/fortigate-fortiwifi-80f-series.pdf": {
+    "etag": "\"53e00f-654d33ea38380\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-06-22",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/pdf/fortiidentity-cloud.pdf": {
+    "etag": "\"16ea6c-650a3900e1fc0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-04-30",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/pdf/fortimanagement-cloud.pdf": {
+    "etag": "\"190fd0-65af272a0f300\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-09-08",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/pdf/fortinet-rugged-accessories.pdf": {
+    "etag": "\"3ff4f9-655e8fc7ba840\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-07-06",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/pdf/fortisase-sovereign.pdf": {
+    "etag": "\"119412-65493b9006340\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-06-19",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/pdf/fortisat.pdf": {
+    "etag": "\"153319-64cca951bdd40\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-03-12",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/pdf/fortiswitch-campus-series.pdf": {
+    "etag": "\"848916-65af26696ac80\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-09-08",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/pdf/fortiswitch-secure-access-series.pdf": {
+    "etag": "\"241baa-64a6d9d58d800\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-02-10",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/pdf/managed-ips-rules-aws.pdf": {
+    "etag": "\"188691-644121209dbc0\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2025-11-21",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/sb-fortiadc-bundles.pdf": {
+    "etag": "\"e59c6-613bbc37fab00\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2024-03-15",
+    "prev_last_modified": null
+  },
+  "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/sb-fortisase-services.pdf": {
+    "etag": "\"76fcb-65b8f18fdc880\"",
+    "first_seen": "2026-09-18",
+    "last_changed": "2026-09-18",
+    "last_checked": "2026-09-18",
+    "last_modified": "2026-09-16",
+    "prev_last_modified": null
+  }
+}
