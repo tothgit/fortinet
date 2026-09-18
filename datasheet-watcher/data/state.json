@@ -320,11 +320,11 @@
     "prev_last_modified": null
   },
   "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiToken_200.pdf": {
-    "etag": null,
+    "etag": "\"eec33-657b6c0e28900\"",
     "first_seen": "2026-09-18",
     "last_changed": null,
     "last_checked": "2026-09-18",
-    "last_modified": null,
+    "last_modified": "2026-07-29",
     "prev_last_modified": null
   },
   "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/FortiToken_300.pdf": {
