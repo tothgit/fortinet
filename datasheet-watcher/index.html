@@ -271,25 +271,6 @@
     font-family:'Sora', monospace;
   }
 
-  .method{
-    background:var(--surface);
-    border:1px solid var(--border);
-    border-radius:var(--radius);
-    box-shadow:var(--shadow);
-    padding:16px 20px;
-    font-size:13px;
-    color:var(--text-muted);
-    line-height:1.6;
-  }
-  .method b{ color:var(--text); }
-  .method code{
-    font-family:'Sora', ui-monospace, SFMono-Regular, monospace;
-    background:var(--surface-alt);
-    border-radius:4px;
-    padding:1px 5px;
-    font-size:12px;
-  }
-
   footer.page{
     display:flex;
     flex-wrap:wrap;
@@ -351,10 +332,6 @@
     <div class="result-count" id="result-count"></div>
   </div>
 
-  <div class="method">
-    <b>Metodika:</b> jednou denně se stáhne <code>fortinet.com/resources/data-sheets?limit=200</code> (statický seznam všech datasheetů) a na každé nalezené PDF se pošle HTTP <code>HEAD</code> požadavek (přesměrování se sledují stejně jako v prohlížeči), který ověří skutečné datum <code>Last-Modified</code> souboru. Stav vychází ze srovnání dvou dat s dnešním datem (okno 30 dní): pokud datum „Dle stránky Fortinet" (nespolehlivé datum z CMS) spadá do posledních 30 dní, je PDF označeno jako <span class="pill new"><span class="swatch new"></span>Nové</span>; pokud toto datum recentní není (je starší nebo chybí), ale ověřený HTTP <code>Last-Modified</code> spadá do posledních 30 dní, je PDF označeno jako <span class="pill changed"><span class="swatch changed"></span>Změněno</span> — to zachytí právě situace, kdy CMS datum na stránce Fortinu neodpovídá skutečnosti, ale soubor byl podle HTTP hlavičky opravdu nedávno změněn. Pokud odkaz nakonec neskončí na PDF (přímo, nebo po přesměrování — např. na obecné stránce), je označen jako <span class="pill broken"><span class="swatch broken"></span>Nedostupné</span> — takový odkaz aktuálně nevede na žádný datasheet.
-  </div>
-
   <footer class="page">
     <span>Stav vztažen k dnešnímu datu (Europe/Prague). Klikni na hlavičku sloupce pro řazení.</span>
   </footer>
@@ -369,7 +346,7 @@ const STATUS_LABEL = { new:'Nové', changed:'Změněno', unchanged:'Beze změny'
 
 const COLS = [
   {k:'t', label:'Datasheet', cls:'product'},
-  {k:'f', label:'Rodina', cls:'cat'},
+  {k:'f', label:'Kategorie', cls:'cat'},
   {k:'v', label:'Ověřeno (HTTP Last-Modified)', cls:'date'},
   {k:'pd', label:'Dle stránky Fortinet', cls:'date muted'},
   {k:'s', label:'Stav', cls:'status'},
