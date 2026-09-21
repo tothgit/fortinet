@@ -2,9 +2,11 @@ name: Daily Fortinet Update
 
 "on":
   schedule:
-    # 05:00 UTC = 07:00 Prague time while CEST is in effect (roughly late
-    # March to late October); shifts to 06:00 Prague once CET resumes.
-    - cron: '0 5 * * *'
+    # 06:20 UTC = 08:20 Prague time while CEST is in effect (roughly late
+    # March to late October); shifts to 07:20 Prague once CET resumes.
+    # Deliberately off the top of the hour: GitHub documents that scheduled
+    # events are most likely to be delayed or dropped at the start of an hour.
+    - cron: '20 6 * * *'
   workflow_dispatch: {}
   push:
     branches: [main]
@@ -28,6 +30,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          # Full history: the default shallow clone (fetch-depth: 1) cannot
+          # be rebased onto the remote branch reliably.
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -44,9 +50,23 @@ jobs:
           git add productlifecycle/index.html
           if git diff --cached --quiet; then
             echo "No data changes today."
-          else
-            git commit -m "Daily data refresh: $(date -u +%Y-%m-%d)"
-            git push
+            exit 0
+          fi
+          git commit -m "Daily data refresh: $(date -u +%Y-%m-%d)"
+          # Another daily job may push to main while this one runs. Rebase
+          # onto the remote tip and retry instead of failing the whole run.
+          pushed=0
+          for attempt in 1 2 3; do
+            if git pull --rebase origin main && git push origin HEAD:main; then
+              pushed=1
+              break
+            fi
+            echo "Push attempt ${attempt} failed; retrying in $((attempt * 5))s..."
+            sleep $((attempt * 5))
+          done
+          if [ "${pushed}" -ne 1 ]; then
+            echo "::error::Could not push productlifecycle/index.html after 3 attempts."
+            exit 1
           fi
 
       - name: Upload Pages artifact
