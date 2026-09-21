@@ -19,7 +19,13 @@
     font-family:'Sora', system-ui, sans-serif;
     padding:24px;
   }
-  .wrap{ max-width:520px; width:100%; }
+  .wrap{ max-width:1100px; width:100%; }
+  .grid{
+    display:grid; grid-template-columns:1fr; gap:16px;
+  }
+  @media (min-width: 900px){
+    .grid{ grid-template-columns:repeat(3, 1fr); }
+  }
   h1{
     font-size:22px; font-weight:700; margin:0 0 22px; text-align:center;
     color:var(--heading-on-bg);
@@ -29,7 +35,7 @@
     padding:26px 28px; width:100%;
     box-shadow:0 8px 24px rgba(2,52,68,0.06);
     text-align:left;
-    margin-bottom:16px;
+    display:flex; flex-direction:column;
   }
   .card h2{
     font-size:16px; font-weight:700; margin:0 0 8px;
@@ -43,26 +49,29 @@
     padding:11px 22px; border-radius:10px;
     transition:background .15s ease;
   }
+  .card a.btn{ margin-top:auto; align-self:flex-start; }
   a.btn:hover{ background:var(--accent-strong); }
 </style>
 </head>
 <body>
   <div class="wrap">
     <h1>Fortinet nástroje</h1>
-    <div class="card">
-      <h2>Product Lifecycle Radar</h2>
-      <p>Přehled konce podpory (EoS/EoL) hardwaru, softwaru a služeb Fortinet, denně aktualizovaný z oficiálních RSS zdrojů Fortinet.</p>
-      <a class="btn" href="./productlifecycle/">Otevřít dashboard</a>
-    </div>
-    <div class="card">
-      <h2>IPsec MTU Calculator</h2>
-      <p>Výpočet optimální MTU/MSS pro IPsec tunely na FortiGate.</p>
-      <a class="btn" href="./ipsec-mtu-calculator/">Otevřít kalkulačku</a>
-    </div>
-    <div class="card">
-      <h2>Datasheet Watcher</h2>
-      <p>Hlídá změny Fortinet datasheetů podle HTTP Last-Modified/ETag přímo na PDF — nikoli podle nespolehlivého data na stránce fortinet.com.</p>
-      <a class="btn" href="./datasheet-watcher/">Otevřít přehled</a>
+    <div class="grid">
+      <div class="card">
+        <h2>Product Lifecycle Radar</h2>
+        <p>Přehled konce podpory (EoS/EoL) hardwaru, softwaru a služeb Fortinet, denně aktualizovaný z oficiálních RSS zdrojů Fortinet.</p>
+        <a class="btn" href="./productlifecycle/">Otevřít dashboard</a>
+      </div>
+      <div class="card">
+        <h2>Datasheet Watcher</h2>
+        <p>Hlídá změny Fortinet datasheetů podle HTTP Last-Modified/ETag přímo na PDF — nikoli podle nespolehlivého data na stránce fortinet.com.</p>
+        <a class="btn" href="./datasheet-watcher/">Otevřít přehled</a>
+      </div>
+      <div class="card">
+        <h2>IPsec MTU Calculator</h2>
+        <p>Výpočet optimální MTU/MSS pro IPsec tunely na FortiGate.</p>
+        <a class="btn" href="./ipsec-mtu-calculator/">Otevřít kalkulačku</a>
+      </div>
     </div>
   </div>
 </body>
